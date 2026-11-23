@@ -46,6 +46,18 @@ final class BinaryDocument: NSDocument {
 
     override func makeWindowControllers() {
         guard let url = fileURL else { return }
+        #if NAKAMI_SELFTEST
+        // Test builds only: write the report where a test can read it, to check what the sandboxed app can see.
+        if ProcessInfo.processInfo.environment["NAKAMI_DUMP"] != nil {
+            DispatchQueue.global().async {
+                let rep = Analyzer.analyze(url, opts: AnalyzeOptions(deep: true))
+                let enc = JSONEncoder()
+                enc.outputFormatting = [.prettyPrinted, .sortedKeys]
+                let out = FileManager.default.temporaryDirectory.appendingPathComponent("nakami-dump-" + url.lastPathComponent + ".json")
+                try? enc.encode(rep).write(to: out)
+            }
+        }
+        #endif
         let host = NSHostingController(rootView: DocumentView(url: url))
         host.sceneBridgingOptions = [.toolbars]
         let w = NSWindow(contentViewController: host)
@@ -93,8 +105,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     func application(_ application: NSApplication, open urls: [URL]) {
         for u in urls {
             if u.scheme == "nakami" {
+                // Opening by path only works outside the sandbox (the App Store build is handed files, never paths).
+                #if !MAS
                 let path = URLComponents(url: u, resolvingAgainstBaseURL: false)?.queryItems?.first { $0.name == "path" }?.value
                 if let path { AppDelegate.open(URL(fileURLWithPath: path)) }
+                #endif
             } else if u.isFileURL {
                 AppDelegate.open(u)
             }

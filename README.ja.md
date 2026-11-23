@@ -50,7 +50,7 @@ Tests/run.sh          # テスト（生成した試験用ファイルと、そ�
 NAKAMI_TEAM=XXXXXXXXXX ./build-ios.sh   # 自分の端末向けの iOS / iPadOS 版
 ```
 
-`./build.sh "Developer ID Application: …"` でその証明書を使って署名します。`scripts/release-mac.sh` はビルド・公証・配布物の作成までを行います。
+`./build.sh "Developer ID Application: …"` でその証明書を使って署名します。`scripts/release-mac.sh` はビルド・公証・配布物の作成までを行います。`scripts/build-mas.sh` は、全体をサンドボックスに入れた Mac App Store 向けの版（コマンドラインツールなし）を作ります。
 
 コードは 1 つのマルチプラットフォームターゲットです。`Core/`（各形式の読み取りとレポートのモデル、UI なし）、`UI/`（全プラットフォーム共通の SwiftUI）、`App/`・`Preview/`・`Thumbnail/`（プラットフォームごとの薄い外枠）、`CLI/`。
 

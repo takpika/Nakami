@@ -19,7 +19,10 @@ struct PreviewRoot: View {
                     .lineLimit(1)
                     .truncationMode(.head)
                 Spacer()
+                // The App Store build has no helper that may launch the app, so it shows no button.
+                #if !MAS
                 Button(L("Nakami で開く", "Open in Nakami")) { Opener.open(url) }
+                #endif
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 8)

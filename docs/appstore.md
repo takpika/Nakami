@@ -1,6 +1,8 @@
 # App Store metadata (draft)
 
-Text to paste into App Store Connect for the iOS / iPadOS app. Bundle ID: `jp.takpika.Nakami`.
+Text to paste into App Store Connect. The iOS / iPadOS app and the Mac App Store app share one record and one bundle ID (`jp.takpika.Nakami`), so buying one gives both.
+
+Builds: `scripts/release-ios.sh` uploads the iOS app, `scripts/build-mas.sh upload` uploads the sandboxed Mac app. The Mac App Store build has no command-line tool and no "Open in Nakami" button in Quick Look (neither is possible inside the sandbox); the Developer ID build on GitHub keeps both.
 
 ## English
 
@@ -54,7 +56,8 @@ Text to paste into App Store Connect for the iOS / iPadOS app. Bundle ID: `jp.ta
 
 ## Still needed before submitting
 
-- Screenshots: iPhone 6.9" and iPad 13" (at least one each).
+- Screenshots: iPhone 6.9" and iPad 13" (at least one each), and Mac (1280 × 800 or larger).
+- Add the macOS platform to the same app record.
 - An app record in App Store Connect for `jp.takpika.Nakami` (iOS platform).
 - An App Store Connect API key for `scripts/release-ios.sh`.
 - Age rating questionnaire (no objectionable content), export compliance (no non-exempt encryption — already declared in Info.plist).

@@ -52,7 +52,7 @@ Tests/run.sh          # tests: generated fixtures, then damaged copies of them
 NAKAMI_TEAM=XXXXXXXXXX ./build-ios.sh   # iOS / iPadOS build for your own devices
 ```
 
-`./build.sh "Developer ID Application: …"` signs with that identity; `scripts/release-mac.sh` builds, notarizes and packages a release.
+`./build.sh "Developer ID Application: …"` signs with that identity; `scripts/release-mac.sh` builds, notarizes and packages a release. `scripts/build-mas.sh` builds the fully sandboxed Mac App Store variant (no command-line tool).
 
 The code is one multi-platform target: `Core/` (parsers and the report model, no UI), `UI/` (SwiftUI views shared by every platform), `App/`, `Preview/`, `Thumbnail/` (thin platform-specific shells), `CLI/`.
 
