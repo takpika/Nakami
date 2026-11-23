@@ -1,0 +1,49 @@
+# fixture	text that must appear in the English report (one check per line)
+hello.jar	Runnable Java archive (jar)
+hello.jar	Java 17 or later
+hello.jar	org.example:hello:1.2.3
+mod.jar	Minecraft mod (Forge)
+mod.jar	demomod
+demo.ipa	iOS app package (ipa)
+demo.ipa	org.example.demo
+demo-app.tar.gz	tar archive with an app (gzip)
+demo-app.tar.gz	2.0 (20)
+files.tar.zst	tar archive (zstd)
+files.tar.zst	notes/
+hello-demo.deb	Debian package (deb)
+hello-demo.deb	hello-demo.service
+hello-demo.deb	Hello Demo
+hello-demo.deb	libc6 (>= 2.31)
+hello-demo.rpm	RPM package
+hello-demo.rpm	hello-demo-1.0-1.src.rpm
+movie.swf	Flash movie (swf)
+movie.swf	550 × 400 px
+movie.swf	#336699
+movie-cws.swf	550 × 400 px
+movie-cws.swf	zlib
+classic.bin	Classic Mac OS Application
+classic.bin	1.2, Demo Inc
+classic.bin	MacBinary II
+classic.bin	preferred 524 KB
+classic.hqx	BinHex 4.0
+classic.hqx	68K
+._classic	AppleDouble
+._classic	Classic Mac OS Application
+classic.rsrc	Classic Mac OS Application
+dos.fdi	MS-DOS boot disk
+dos.fdi	NEC PC-9800 series
+dos.fdi	FDI (Anex86)
+dos.fdi	テスト
+dos.fdi	FILES=30
+dos.hdm	MS-DOS boot disk
+dos.hdm	6.20
+dos.d88	D88
+dos.d88	COMMAND.COM
+disc.iso	Optical disc image
+disc.iso	setup.exe /s
+disc.iso	Demo Disc
+demo.aab	Android App Bundle (aab)
+demo.aab	org.example.bundle
+demo.aab	1.15.6
+lib.so	Shared library
+lib.so	x86-64

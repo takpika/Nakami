@@ -1,0 +1,79 @@
+name: Nakami
+options:
+  bundleIdPrefix: jp.takpika
+  deploymentTarget:
+    macOS: "15.0"
+    iOS: "17.4"
+  createIntermediateGroups: true
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    MARKETING_VERSION: "1.0"
+    CURRENT_PROJECT_VERSION: "1"
+    DEAD_CODE_STRIPPING: "YES"
+    OTHER_LDFLAGS: "-lbz2"
+    TARGETED_DEVICE_FAMILY: "1,2"
+    SUPPORTS_MACCATALYST: "NO"
+    SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD: "NO"
+    # macOS is signed by build.sh (inside-out, with the right entitlements); iOS uses automatic signing.
+    "CODE_SIGNING_ALLOWED[sdk=macosx*]": "NO"
+    CODE_SIGN_STYLE: Automatic
+targets:
+  # One app for macOS, iOS and iPadOS. Platform differences live behind #if os(...) in App/ and Preview/.
+  Nakami:
+    type: application
+    supportedDestinations: [macOS, iOS]
+    sources: [App, Core, UI]
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: jp.takpika.Nakami
+        INFOPLIST_FILE: App/Info.plist
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+    dependencies:
+      - target: NakamiPreview
+        embed: true
+      - target: NakamiThumbnail
+        embed: true
+      - target: NakamiSpotlight
+        embed: true
+  NakamiPreview:
+    type: app-extension
+    supportedDestinations: [macOS, iOS]
+    sources: [Preview, Core, UI]
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: jp.takpika.Nakami.Preview
+        INFOPLIST_FILE: Preview/Info.plist
+  NakamiThumbnail:
+    type: app-extension
+    supportedDestinations: [macOS, iOS]
+    sources: [Thumbnail, Core]
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: jp.takpika.Nakami.Thumbnail
+        INFOPLIST_FILE: Thumbnail/Info.plist
+  NakamiSpotlight:
+    type: app-extension
+    supportedDestinations: [macOS, iOS]
+    sources: [Spotlight, Core]
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: jp.takpika.Nakami.Spotlight
+        INFOPLIST_FILE: Spotlight/Info.plist
+  # macOS only: lets the sandboxed preview extension open the main app. build.sh builds it and places it inside the extension.
+  NakamiLauncher:
+    type: xpc-service
+    platform: macOS
+    sources: [Launcher]
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: jp.takpika.Nakami.Launcher
+        INFOPLIST_FILE: Launcher/Info.plist
+  # macOS only: command-line front end. build.sh builds it and places it inside the app.
+  nakami-cli:
+    type: tool
+    platform: macOS
+    sources: [CLI, Core, UI]
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: jp.takpika.Nakami.cli

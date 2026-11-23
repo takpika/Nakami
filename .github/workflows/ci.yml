@@ -1,0 +1,21 @@
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+jobs:
+  test:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Tests
+        run: Tests/run.sh 40
+      - name: Install XcodeGen
+        run: brew install xcodegen
+      - name: Build the macOS app (ad-hoc signed)
+        run: ./build.sh -
+      - name: Build the iOS app (unsigned)
+        run: |
+          xcodebuild -project Nakami.xcodeproj -scheme Nakami -configuration Release \
+            -destination 'generic/platform=iOS' -derivedDataPath build/dd-ios \
+            CODE_SIGNING_ALLOWED=NO -quiet build
