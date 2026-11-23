@@ -3,7 +3,10 @@
 set -e
 cd "$(dirname "$0")"
 # With no identity given, the first one in the keychain is used; "-" signs ad hoc (runs on this Mac only).
-IDENTITY="${1:-${NAKAMI_IDENTITY:-$(security find-identity -v -p codesigning | awk 'NR==1{print $2}')}}"
+# (Developer ID if there is one, else a development identity — never an App Store distribution one.)
+DEFAULT=$(security find-identity -v -p codesigning | awk '/Developer ID Application/{print $2; exit}')
+[ -n "$DEFAULT" ] || DEFAULT=$(security find-identity -v -p codesigning | awk '/Apple Development/{print $2; exit}')
+IDENTITY="${1:-${NAKAMI_IDENTITY:-$DEFAULT}}"
 [ -n "$IDENTITY" ] || IDENTITY="-"
 # Releases need a secure timestamp; ad-hoc signatures cannot have one.
 TS="--timestamp"; [ "$IDENTITY" = "-" ] && TS="--timestamp=none"
