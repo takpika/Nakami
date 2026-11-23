@@ -320,7 +320,7 @@ enum MachO {
         guard let s = preferred(slices) else { return [] }
         var out = [ReportSection]()
         let multi = slices.count > 1
-        let which = multi ? L("（\(s.arch) スライス）", " (\(s.arch) slice)") : ""
+        let which = multi ? L("（\(s.arch) スライス）", " (\(s.arch) slice)", "（\(s.arch) 切片）") : ""
 
         // Executable overview.
         var rows = [Row]()

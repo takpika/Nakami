@@ -433,7 +433,7 @@ enum PKG {
         if !placed.isEmpty {
             var nrows = [Row]()
             func add(_ k: String, _ a: [String], _ tone: Tone = .neutral) {
-                if !a.isEmpty { nrows.add(k, a.prefix(12).joined(separator: "\n") + (a.count > 12 ? L("\n（ほか \(a.count - 12) 件）", "\n(\(a.count - 12) more)") : ""), mono: true, tone: tone) }
+                if !a.isEmpty { nrows.add(k, a.prefix(12).joined(separator: "\n") + (a.count > 12 ? L("\n（ほか \(a.count - 12) 件）", "\n(\(a.count - 12) more)", "\n（另有 \(a.count - 12) 項）") : ""), mono: true, tone: tone) }
             }
             add(L("アプリ", "Apps"), apps)
             add(L("常駐（全ユーザー）LaunchDaemons", "LaunchDaemons"), daemons, .warn)

@@ -82,7 +82,7 @@ enum IPA {
             return ["iPhoneOS": "iOS", "AppleTVOS": "tvOS", "WatchOS": "watchOS", "XROS": "visionOS", "MacOSX": "macOS"][p] ?? p
         }()
         let container = isFolder ? zip.containerLabel! : proper ? "ipa" : url.pathExtension.lowercased() == "ipa" ? L("ipa、Payload なし", "ipa without Payload") : "zip"
-        rep.subtitle = L("\(platform) アプリ (\(container))", "\(platform) app (\(container))") + (version.map { " · " + L("バージョン ", "Version ") + $0 } ?? "")
+        rep.subtitle = L("\(platform) アプリ (\(container))", "\(platform) app (\(container))", "\(platform) App (\(container))") + (version.map { " · " + L("バージョン ", "Version ") + $0 } ?? "")
         if let d = iconData(zip, dir: dir, info: info) { rep.icon = appIcon(d, info: info) }
 
         // Main executable
@@ -148,8 +148,8 @@ enum IPA {
         }
 
         var sum = [Row]()
-        sum.add(L("種類", "Kind"), isFolder ? L("\(platform) アプリ（.app バンドル）", "\(platform) app (.app bundle)")
-                : proper ? L("\(platform) アプリのパッケージ (ipa)", "\(platform) app package (ipa)") : L("zip に入った \(platform) アプリ", "\(platform) app in a zip archive"))
+        sum.add(L("種類", "Kind"), isFolder ? L("\(platform) アプリ（.app バンドル）", "\(platform) app (.app bundle)", "\(platform) App（.app 套件包）")
+                : proper ? L("\(platform) アプリのパッケージ (ipa)", "\(platform) app package (ipa)", "\(platform) App 套件 (ipa)") : L("zip に入った \(platform) アプリ", "\(platform) app in a zip archive", "zip 中的 \(platform) App"))
         if !proper, url.pathExtension.lowercased() == "ipa" {
             sum.add(L("構造", "Layout"), L("Payload フォルダーがありません（.app を直接 zip にしたもの）。このままでは通常の方法でインストールできません。", "No Payload folder (the .app was zipped directly). It will not install as-is."), tone: .warn)
             rep.badges.append(Badge(text: L("Payload なし", "No Payload folder"), tone: .warn))
@@ -163,8 +163,8 @@ enum IPA {
         sum.add(L("対応デバイス", "Devices"), families.joined(separator: ", "))
         sum.add(L("アーキテクチャ", "Architectures"), slices.isEmpty ? nil : MachO.archSummary(slices))
         sum.add(L("技術", "Built with"), tech.joined(separator: ", "))
-        sum.add(L("サイズ", "Size"), isFolder ? byteSize(zip.totalUncompressed) + L("（\(zip.entries.count) ファイル）", " (\(zip.entries.count) files)")
-                : byteSize(fileSize) + L("（展開後 ", " (unpacked ") + byteSize(zip.totalUncompressed) + L("、\(zip.entries.count) 項目）", ", \(zip.entries.count) items)"))
+        sum.add(L("サイズ", "Size"), isFolder ? byteSize(zip.totalUncompressed) + L("（\(zip.entries.count) ファイル）", " (\(zip.entries.count) files)", "（\(zip.entries.count) 個檔案）")
+                : byteSize(fileSize) + L("（展開後 ", " (unpacked ") + byteSize(zip.totalUncompressed) + L("、\(zip.entries.count) 項目）", ", \(zip.entries.count) items)", "，\(zip.entries.count) 個項目）"))
         if let meta = plist(zip, "iTunesMetadata.plist") {
             sum.add(L("App Store での名前", "App Store name"), meta["itemName"] as? String)
             sum.add("App Store ID", (meta["itemId"] as? NSNumber)?.stringValue, mono: true)

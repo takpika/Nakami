@@ -128,7 +128,7 @@ enum Drivers {
         } else {
             rows.add(L("署名の区分", "Signature class"), is64 ? L("署名なし（64 ビット版 Windows ではテストモード以外で読み込めません）", "Unsigned (64-bit Windows will not load it outside test mode)") : L("署名なし", "Unsigned"), tone: .warn)
         }
-        if exported > 30 { rows.add(L("ほかのドライバーへの提供", "Offers to other drivers"), L("\(exported) 個の関数を公開（ほかのドライバーが土台として使う部品です）", "Exports \(exported) functions (other drivers build on it)")) }
+        if exported > 30 { rows.add(L("ほかのドライバーへの提供", "Offers to other drivers"), L("\(exported) 個の関数を公開（ほかのドライバーが土台として使う部品です）", "Exports \(exported) functions (other drivers build on it)", "公開 \(exported) 個函式（其他驅動程式會以此為基礎）")) }
         // Things the driver hooks into system-wide (typical of security software, anti-cheat and monitoring tools).
         var behaviours = [String]()
         if calls("PsSetCreateProcessNotifyRoutine", "PsSetCreateProcessNotifyRoutineEx", "PsSetCreateProcessNotifyRoutineEx2") { behaviours.append(L("プロセスの起動と終了を監視", "Watches process creation and exit")) }

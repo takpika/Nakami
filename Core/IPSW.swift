@@ -139,7 +139,7 @@ enum IPSW {
         if behaviors.contains("Update") && behaviors.contains("Erase") { rep.badges.append(Badge(text: L("復元・アップデート両対応", "Erase + Update"), tone: .neutral)) }
 
         var sum = [Row]()
-        sum.add(L("種類", "Kind"), L("\(os) のファームウェア (ipsw)", "\(os) firmware (ipsw)"))
+        sum.add(L("種類", "Kind"), L("\(os) のファームウェア (ipsw)", "\(os) firmware (ipsw)", "\(os) 韌體 (ipsw)"))
         sum.add(L("バージョン", "Version"), version)
         sum.add(L("ビルド", "Build"), build, mono: true)
         sum.add(L("対応機種", "Devices"), types.count <= 6 ? types.map { t in names[t].map { "\($0) (\(t))" } ?? t }.joined(separator: "\n") : "\(types.count)" + L(" 機種（下の一覧を参照）", " devices (see the list below)"))
@@ -148,7 +148,7 @@ enum IPSW {
         sum.add(L("システムイメージ", "OS image"), dmgs.first.map { "\($0.name)（\(byteSize($0.size))）" }, mono: true)
         sum.add(L("ベースバンド", "Baseband"), baseband.isEmpty ? nil : baseband.map { ($0.name as NSString).lastPathComponent }.joined(separator: ", "), mono: true)
         sum.add(L("復元の種類", "Variants"), variants.prefix(6).joined(separator: "\n"))
-        sum.add(L("サイズ", "Size"), byteSize(fileSize) + L("（展開後 ", " (unpacked ") + byteSize(zip.totalUncompressed) + L("、\(zip.entries.count) 項目）", ", \(zip.entries.count) items)"))
+        sum.add(L("サイズ", "Size"), byteSize(fileSize) + L("（展開後 ", " (unpacked ") + byteSize(zip.totalUncompressed) + L("、\(zip.entries.count) 項目）", ", \(zip.entries.count) items)", "，\(zip.entries.count) 個項目）"))
         rep.summary = sum
 
         if !deviceRows.isEmpty {

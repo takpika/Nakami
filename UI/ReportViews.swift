@@ -139,14 +139,26 @@ struct RowsView: View {
     #endif
 
     var body: some View {
-        Grid(alignment: .leadingFirstTextBaseline, horizontalSpacing: 14, verticalSpacing: 6) {
+        let symbols = rows.contains { $0.symbol != nil }
+        Grid(alignment: .leadingFirstTextBaseline, horizontalSpacing: 14, verticalSpacing: symbols ? 9 : 6) {
             ForEach(rows) { row in
                 GridRow {
-                    Text(row.key)
-                        .foregroundStyle(.secondary)
-                        .gridColumnAlignment(.trailing)
-                        .multilineTextAlignment(.trailing)
-                        .frame(maxWidth: keyWidth, alignment: .trailing)
+                    HStack(alignment: .firstTextBaseline, spacing: 8) {
+                        Text(row.key)
+                            .foregroundStyle(.secondary)
+                            .multilineTextAlignment(.trailing)
+                            .fixedSize(horizontal: false, vertical: true)   // long names wrap instead of being cut ("アーキテク…")
+                        if symbols {
+                            // Keys are right-aligned, so the symbols line up in a column of their own.
+                            Image(systemName: row.symbol ?? "circle.fill")
+                                .symbolRenderingMode(.hierarchical)
+                                .foregroundStyle(row.tone == .neutral ? Color.accentColor : row.tone.color)
+                                .opacity(row.symbol == nil ? 0 : 1)
+                                .frame(width: 20)
+                        }
+                    }
+                    .gridColumnAlignment(.trailing)
+                    .frame(maxWidth: keyWidth + (symbols ? 28 : 0), alignment: .trailing)
                     value(row)
                 }
             }
@@ -275,11 +287,11 @@ struct CompactReportContent: View {
 
 #if os(macOS)
 @MainActor
-func renderPNG(_ report: Report, to url: URL, width: Double) {
+func renderPNG(_ report: Report, to url: URL, width: Double, dark: Bool = false) {
     let view = CompactReportContent(report: report, selectable: false)
         .frame(width: width)
-        .background(Color.white)
-        .environment(\.colorScheme, .light)
+        .background(dark ? Color(white: 0.12) : Color.white)
+        .environment(\.colorScheme, dark ? .dark : .light)
     let r = ImageRenderer(content: view)
     r.scale = 2
     guard let img = r.nsImage, let tiff = img.tiffRepresentation, let rep = NSBitmapImageRep(data: tiff),

@@ -71,7 +71,7 @@ enum TarArchive {
         guard sc.total > 0 else { return nil }
         var rep = Report(kind: .pkg, path: url.path, title: url.lastPathComponent)
         let codecName = codec == .none ? L("無圧縮", "uncompressed") : codec.rawValue
-        var kind = L("tar アーカイブ（\(codecName)）", "tar archive (\(codecName))")
+        var kind = L("tar アーカイブ（\(codecName)）", "tar archive (\(codecName))", "tar 封存檔（\(codecName)）")
         var sum = [Row]()
         if let a = s.app, let info = sc.kept[a + "/Contents/Info.plist"].flatMap({ (try? PropertyListSerialization.propertyList(from: $0, format: nil)) as? [String: Any] }) {
             let name = (info["CFBundleDisplayName"] as? String) ?? (info["CFBundleName"] as? String) ?? String(a.dropLast(4))
@@ -79,7 +79,7 @@ enum TarArchive {
             let id = (info["CFBundleIdentifier"] as? String) ?? ""
             let isInstaller = id.hasPrefix("com.apple.InstallAssistant") || ["Install macOS", "Install OS X", "Install Mac OS X"].contains { a.hasPrefix($0) }
             if isInstaller {
-                kind = L("macOS のインストーラー（tar アーカイブ、\(codecName)）", "macOS installer (tar archive, \(codecName))")
+                kind = L("macOS のインストーラー（tar アーカイブ、\(codecName)）", "macOS installer (tar archive, \(codecName))", "macOS 安裝程式（tar 封存檔，\(codecName)）")
                 rep.badges.append(Badge(text: "macOS", tone: .info))
                 var version: String?
                 if let ii = sc.kept[a + "/Contents/SharedSupport/InstallInfo.plist"].flatMap({ (try? PropertyListSerialization.propertyList(from: $0, format: nil)) as? [String: Any] }),
@@ -91,7 +91,7 @@ enum TarArchive {
                 sum.add(L("macOS のバージョン", "macOS version"), version.map { $0 + (exact ? "" : L("（細かい版数はアーカイブを展開しないと分かりません）", " (the exact version is only known after unpacking)")) })
                 sum.add(L("インストーラーのバージョン", "Installer version"), short.map { $0 + (build.map { " (\($0))" } ?? "") })
             } else {
-                kind = L("アプリの入った tar アーカイブ（\(codecName)）", "tar archive with an app (\(codecName))")
+                kind = L("アプリの入った tar アーカイブ（\(codecName)）", "tar archive with an app (\(codecName))", "含 App 的 tar 封存檔（\(codecName)）")
                 rep.title = name
                 sum.add(L("アプリ", "App"), a, mono: true)
                 sum.add(L("バージョン", "Version"), short.map { $0 + (build != nil && build != $0 ? " (\(build!))" : "") } ?? build)
@@ -107,7 +107,7 @@ enum TarArchive {
             sum.add(L("ファイル数", "Files"), "\(sc.entries.filter { !$0.isDir }.count)")
             sum.add(L("展開後のサイズ", "Unpacked size"), byteSize(sc.totalBytes))
         } else if s.app == nil {
-            sum.add(L("中身の読み取り", "Reading the contents"), L("時間内に読めた先頭の \(sc.total) 件までを表示しています", "Showing the first \(sc.total) entries read within the time limit"))
+            sum.add(L("中身の読み取り", "Reading the contents"), L("時間内に読めた先頭の \(sc.total) 件までを表示しています", "Showing the first \(sc.total) entries read within the time limit", "顯示在時間限制內讀取到的前 \(sc.total) 項"))
         }
         sum.add(L("圧縮", "Compression"), codec == .none ? L("なし", "None") : codec.rawValue)
         sum.add(L("サイズ", "Size"), byteSizeExact(data.count))
@@ -138,7 +138,7 @@ enum CompressedFile {
         let codec = Unpack.codec(Reader(data))
         guard [.gzip, .xz, .bzip2, .zstd].contains(codec) else { return nil }
         var rep = Report(kind: .unknown, path: url.path, title: url.lastPathComponent)
-        let kind = L("圧縮されたファイル (\(codec.rawValue))", "Compressed file (\(codec.rawValue))")
+        let kind = L("圧縮されたファイル (\(codec.rawValue))", "Compressed file (\(codec.rawValue))", "已壓縮的檔案 (\(codec.rawValue))")
         rep.subtitle = kind
         var sum = [Row(L("種類", "Kind"), kind)]
         let head = codec == .bzip2 && data.count > 32 << 20 ? Data() : Unpack.head(data, codec: codec, count: 4096)

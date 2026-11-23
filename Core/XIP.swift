@@ -154,10 +154,10 @@ enum XIP {
         sum.add(L("署名者", "Signed by"), sig.names.first)
         sum.add(L("サイズ", "Size"), byteSize(fileSize) + (unpacked.map { L("（展開後 ", " (unpacked ") + byteSize($0) + L("）", ")") } ?? ""))
         if scan.finished {
-            sum.add(L("項目数", "Items"), "\(scan.entries)" + L(" 項目（ファイル \(scan.files) 個、\(byteSize(scan.bytes))）", " items (\(scan.files) files, \(byteSize(scan.bytes)))"))
+            sum.add(L("項目数", "Items"), "\(scan.entries)" + L(" 項目（ファイル \(scan.files) 個、\(byteSize(scan.bytes))）", " items (\(scan.files) files, \(byteSize(scan.bytes)))", " 個項目（\(scan.files) 個檔案，\(byteSize(scan.bytes))）"))
         } else if let content, scan.entries > 0 {
             let pct = content.length > 0 ? scan.consumed * 100 / content.length : 0
-            sum.add(L("走査した範囲", "Scanned"), L("先頭の約 \(pct)%（\(scan.entries) 項目まで）", "first ~\(pct)% (\(scan.entries) items)"))
+            sum.add(L("走査した範囲", "Scanned"), L("先頭の約 \(pct)%（\(scan.entries) 項目まで）", "first ~\(pct)% (\(scan.entries) items)", "前約 \(pct)%（至 \(scan.entries) 個項目）"))
         }
         rep.summary = sum
 

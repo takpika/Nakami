@@ -42,9 +42,9 @@ struct FullTableView: View {
             content(rows)
             HStack {
                 let total = table.total ?? table.rows.count
-                Text(filter.isEmpty ? L("\(rows.count) 件", "\(rows.count) items") : L("\(rows.count) / \(table.rows.count) 件", "\(rows.count) of \(table.rows.count)"))
+                Text(filter.isEmpty ? L("\(rows.count) 件", "\(rows.count) items", "\(rows.count) 個項目") : L("\(rows.count) / \(table.rows.count) 件", "\(rows.count) of \(table.rows.count)", "\(rows.count) / \(table.rows.count) 個項目"))
                 if total > table.rows.count {
-                    Text(L("（全 \(total) 件のうち先頭 \(table.rows.count) 件を表示）", "(first \(table.rows.count) of \(total))"))
+                    Text(L("（全 \(total) 件のうち先頭 \(table.rows.count) 件を表示）", "(first \(table.rows.count) of \(total))", "（共 \(total) 個項目，顯示前 \(table.rows.count) 個）"))
                 }
                 Spacer()
             }
@@ -177,6 +177,8 @@ struct DocumentView: View {
     @State private var selection: String? = nil
     @State private var filter = ""
     @State private var exportDoc: JSONExport?
+    /// Screenshots only: the detail page opened right away on a phone (NAKAMI_SECTION).
+    @State private var autoPush: ReportSection?
 
     #if os(iOS)
     // iOS: the document scene already has a navigation bar (back to the file browser, file name).
@@ -208,6 +210,11 @@ struct DocumentView: View {
                     }
                 }
                 .listStyle(.insetGrouped)
+                #if NAKAMI_SELFTEST
+                .navigationDestination(isPresented: Binding(get: { autoPush != nil }, set: { if !$0 { autoPush = nil } })) {
+                    if let s = autoPush { SectionPage(section: s) }
+                }
+                #endif
             } else {
                 VStack(spacing: 10) {
                     ProgressView()
@@ -253,26 +260,25 @@ struct DocumentView: View {
     var body: some View { splitBody }
     #endif
 
+    private func sidebarRow(_ s: ReportSection) -> some View {
+        let count: Text? = s.count.map { Text("\($0)") }
+        return Label(s.title, systemImage: s.symbol).badge(count)
+    }
+
     private var splitBody: some View {
         NavigationSplitView {
             List(selection: $selection) {
                 Label(L("概要", "Overview"), systemImage: "rectangle.and.text.magnifyingglass").tag("overview")
                 if let report, !report.sections.isEmpty {
                     Section(L("詳細", "Details")) {
-                        ForEach(report.sections) { s in
-                            Label(s.title, systemImage: s.symbol)
-                                .badge(s.count.map { Text("\($0)") })
-                                .tag(s.id)
-                        }
+                        ForEach(report.sections) { s in sidebarRow(s).tag(s.id) }
                     }
                 }
             }
-            #if os(iOS)
-            .navigationSplitViewColumnWidth(min: 250, ideal: 290, max: 340)
-            #else
+            // iOS: no fixed width, so that on a half-folded iPhone Duo the system sizes the columns to the fold.
+            #if os(macOS)
             .navigationSplitViewColumnWidth(min: 200, ideal: 240, max: 320)
-            #endif
-            #if os(iOS)
+            #else
             .navigationTitle(url.lastPathComponent)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -355,10 +361,23 @@ struct DocumentView: View {
         Task.detached(priority: .userInitiated) {
             let scoped = url.startAccessingSecurityScopedResource()
             defer { if scoped { url.stopAccessingSecurityScopedResource() } }
-            let r = Analyzer.analyze(url, opts: AnalyzeOptions(deep: true))
+            var r = Analyzer.analyze(url, opts: AnalyzeOptions(deep: true))
+            #if NAKAMI_SELFTEST
+            // Screenshots: show a report from sample data instead (NAKAMI_REPORT=sample.json, NAKAMI_ICON=icon.png).
+            let env = ProcessInfo.processInfo.environment
+            if let p = env["NAKAMI_REPORT"], let d = FileManager.default.contents(atPath: p), var sample = try? JSONDecoder().decode(Report.self, from: d) {
+                if let i = env["NAKAMI_ICON"], let d = FileManager.default.contents(atPath: i) { sample.icon = ImageKit.decode(d) }
+                r = sample
+            }
+            #endif
+            let result = r
             await MainActor.run {
+                let r = result
                 report = r
                 if selection == nil, let initialSection { selection = initialSection }
+                #if NAKAMI_SELFTEST
+                autoPush = r.sections.first { $0.id == initialSection }
+                #endif
                 if selection == nil { selection = "overview" }
                 if let sel = selection, sel != "overview", !r.sections.contains(where: { $0.id == sel }) { selection = "overview" }
             }

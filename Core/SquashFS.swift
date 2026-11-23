@@ -221,10 +221,10 @@ final class SquashFS {
     func factRows() -> [Row] {
         var rows = [Row]()
         rows.add(L("ファイルシステム", "File system"), "SquashFS 4")
-        rows.add(L("圧縮", "Compression"), compressorName + L("（ブロック \(byteSize(blockSize))）", " (\(byteSize(blockSize)) blocks)"))
+        rows.add(L("圧縮", "Compression"), compressorName + L("（ブロック \(byteSize(blockSize))）", " (\(byteSize(blockSize)) blocks)", "（區塊 \(byteSize(blockSize))）"))
         rows.add(L("ファイルとフォルダーの数", "Files and folders"), "\(inodeCount)")
         if let m = modified { rows.add(L("作成日時", "Created"), dateString(m)) }
-        if !readable { rows.add(L("中身の読み取り", "Reading the contents"), L("\(compressorName) 圧縮の展開には対応していないため、中のファイルは読めません", "\(compressorName) compression is not supported here, so files inside are not read"), tone: .warn) }
+        if !readable { rows.add(L("中身の読み取り", "Reading the contents"), L("\(compressorName) 圧縮の展開には対応していないため、中のファイルは読めません", "\(compressorName) compression is not supported here, so files inside are not read", "此處不支援 \(compressorName) 壓縮，因此無法讀取其中的檔案"), tone: .warn) }
         return rows
     }
 }

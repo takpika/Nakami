@@ -22,6 +22,8 @@ enum DocumentTypes {
 }
 
 struct NakamiMobileApp: App {
+    init() { WelcomePresenter.install() }
+
     var body: some Scene {
         // Document-based: the Files browser is the launch screen and each open file gets its own scene.
         DocumentGroup(viewing: BinaryFile.self) { file in
@@ -49,7 +51,8 @@ struct NakamiDirectApp: App {
 @main
 enum Main {
     static func main() {
-        if ProcessInfo.processInfo.environment["NAKAMI_FILE"] != nil { NakamiDirectApp.main() } else { NakamiMobileApp.main() }
+        let env = ProcessInfo.processInfo.environment
+        if env["NAKAMI_FILE"] != nil || env["NAKAMI_REPORT"] != nil { NakamiDirectApp.main() } else { NakamiMobileApp.main() }
     }
 }
 #endif

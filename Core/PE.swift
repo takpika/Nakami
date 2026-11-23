@@ -595,8 +595,7 @@ enum PE {
         let certSize = auth != nil ? f.dirs[4].size : 0
         let overlay = data.count - fileEnd - certSize
         if fileEnd > 0, overlay > 0 {
-            sblocks.append(.note(L("末尾にセクション外のデータ（オーバーレイ）が \(byteSize(overlay)) あります。インストーラーや自己展開書庫でよく見られます。",
-                                   "\(byteSize(overlay)) of overlay data follows the last section (common in installers and self-extractors).")))
+            sblocks.append(.note(L("末尾にセクション外のデータ（オーバーレイ）が \(byteSize(overlay)) あります。インストーラーや自己展開書庫でよく見られます。", "\(byteSize(overlay)) of overlay data follows the last section (common in installers and self-extractors).", "最後一個區段之後有 \(byteSize(overlay)) 的區段外資料（覆蓋層）。常見於安裝程式與自我解壓縮檔。")))
         }
         if f.sections.contains(where: { $0.chars & 0xa000_0000 == 0xa000_0000 }) {
             sblocks.append(.note(L("書き込みと実行の両方が可能なセクションがあります。", "A section is both writable and executable.")))
@@ -707,7 +706,7 @@ enum PE {
             let strs = asciiStrings(r, s.raw, s.rawSize)
             if !strs.isEmpty {
                 rep.sections.append(ReportSection(id: "strings", title: L("文字列", "Strings"), symbol: "text.quote",
-                    blocks: [.table(TableData(columns: [L("文字列 (\(s.name))", "String (\(s.name))")], rows: strs.map { [$0] }))], count: strs.count))
+                    blocks: [.table(TableData(columns: [L("文字列 (\(s.name))", "String (\(s.name))", "字串 (\(s.name))")], rows: strs.map { [$0] }))], count: strs.count))
             }
         }
         return rep
@@ -725,7 +724,7 @@ enum PE {
             let target = r.u8(lfanew + 0x36)
             let os = [1: "OS/2", 2: "Windows", 3: "European MS-DOS 4.x", 4: "Windows 386", 5: "Borland Operating System Services"][Int(target)] ?? "?"
             let isDLL = r.u16(lfanew + 0x0c) & 0x8000 != 0
-            rep.subtitle = L("16 ビット \(os) ", "16-bit \(os) ") + (isDLL ? L("ライブラリ", "library") : L("アプリ", "app")) + " · NE"
+            rep.subtitle = L("16 ビット \(os) ", "16-bit \(os) ", "16 位元 \(os)  ") + (isDLL ? L("ライブラリ", "library") : L("アプリ", "app")) + " · NE"
             sum.add(L("種類", "Kind"), L("16 ビット実行ファイル (New Executable)", "16-bit New Executable"))
             sum.add(L("対象 OS", "Target OS"), os)
             sum.add(L("想定 Windows", "Expected Windows"), "\(r.u8(lfanew + 0x3f)).\(r.u8(lfanew + 0x3e))")
@@ -738,7 +737,7 @@ enum PE {
             let dn = Int(r.u8(nr))
             if nr > 0, dn > 0 { sum.add(L("説明", "Description"), r.fixedStr(nr + 1, dn)) }
         case "LE", "LX":
-            rep.subtitle = L("リニア実行ファイル (\(sig))", "Linear Executable (\(sig))")
+            rep.subtitle = L("リニア実行ファイル (\(sig))", "Linear Executable (\(sig))", "線性可執行檔 (\(sig))")
             sum.add(L("種類", "Kind"), sig == "LE" ? L("Windows VxD / DOS エクステンダー (LE)", "Windows VxD / DOS extender (LE)") : L("OS/2 実行ファイル (LX)", "OS/2 executable (LX)"))
         default:
             rep.subtitle = L("MS-DOS 実行ファイル", "MS-DOS executable")

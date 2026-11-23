@@ -17,6 +17,9 @@ struct NakamiApp: App {
                     RecentMenu()
                 }
                 CommandGroup(replacing: .appSettings) {}
+                CommandGroup(replacing: .help) {
+                    Button(L("Nakami へようこそ", "Welcome to Nakami", "歡迎使用 Nakami")) { delegate.showOnboarding() }
+                }
             }
     }
 }
@@ -74,6 +77,7 @@ final class BinaryDocument: NSDocument {
 
 final class AppDelegate: NSObject, NSApplicationDelegate {
     private var welcome: NSWindow?
+    private var onboarding: NSWindow?
     private var observer: NSObjectProtocol?
 
     static func open(_ url: URL) {
@@ -84,11 +88,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationDidFinishLaunching(_ note: Notification) {
         // Give documents passed at launch a moment to open before deciding to show the welcome window.
+        #if NAKAMI_SELFTEST
+        if let dir = ProcessInfo.processInfo.environment["NAKAMI_WELCOME_PNG"] {
+            renderWelcomePages(to: dir)
+            exit(0)
+        }
+        #endif
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [self] in
-            if NSDocumentController.shared.documents.isEmpty { showWelcome() }
+            guard NSDocumentController.shared.documents.isEmpty else { return }
+            if FirstLaunch.needed { showOnboarding() } else { showWelcome() }
         }
         observer = NotificationCenter.default.addObserver(forName: NSWindow.didBecomeMainNotification, object: nil, queue: .main) { [weak self] n in
-            guard let self, let w = n.object as? NSWindow, w !== self.welcome, w.windowController?.document != nil else { return }
+            guard let self, let w = n.object as? NSWindow, w !== self.welcome, w !== self.onboarding, w.windowController?.document != nil else { return }
             self.welcome?.close()
             self.welcome = nil
         }
@@ -98,7 +109,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { true }
 
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
-        if !flag { showWelcome() }
+        if !flag, onboarding == nil { showWelcome() }
         return true
     }
 
@@ -113,6 +124,33 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             } else if u.isFileURL {
                 AppDelegate.open(u)
             }
+        }
+    }
+
+    /// The first-launch screens. Also reachable from the Help menu.
+    func showOnboarding() {
+        if let onboarding { onboarding.makeKeyAndOrderFront(nil); return }
+        let host = NSHostingController(rootView: OnboardingView(done: { [weak self] in
+            FirstLaunch.finish()
+            self?.onboarding?.close()
+        }))
+        let w = NSWindow(contentViewController: host)
+        w.styleMask = [.titled, .closable, .fullSizeContentView]
+        w.titlebarAppearsTransparent = true
+        w.title = ""
+        w.tabbingMode = .disallowed
+        w.isReleasedWhenClosed = false
+        w.center()
+        onboarding = w
+        w.makeKeyAndOrderFront(nil)
+        var token: NSObjectProtocol?
+        token = NotificationCenter.default.addObserver(forName: NSWindow.willCloseNotification, object: w, queue: .main) { [weak self] _ in
+            if let token { NotificationCenter.default.removeObserver(token) }
+            guard let self else { return }
+            // Closing with the red button counts as having seen it.
+            FirstLaunch.finish()
+            self.onboarding = nil
+            if NSDocumentController.shared.documents.isEmpty { self.showWelcome() }
         }
     }
 

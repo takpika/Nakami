@@ -3,8 +3,21 @@ import CoreGraphics
 
 /// Japanese when the user's first language is Japanese, otherwise English.
 /// `NAKAMI_LANG=en` / `ja` overrides it (used by the tests, and handy on the command line).
-let prefersJapanese: Bool = (ProcessInfo.processInfo.environment["NAKAMI_LANG"] ?? Locale.preferredLanguages.first ?? "ja").hasPrefix("ja")
-func L(_ ja: String, _ en: String) -> String { prefersJapanese ? ja : en }
+private let preferredLanguage: String = ProcessInfo.processInfo.environment["NAKAMI_LANG"] ?? Locale.preferredLanguages.first ?? "ja"
+let prefersJapanese: Bool = preferredLanguage.hasPrefix("ja")
+/// Traditional Chinese (Taiwan, Hong Kong, Macau). Simplified Chinese falls back to English.
+let prefersTraditionalChinese: Bool = {
+    let l = preferredLanguage.lowercased()
+    return l == "zh" || l.hasPrefix("zh-hant") || l.hasPrefix("zh-tw") || l.hasPrefix("zh_tw") || l.hasPrefix("zh-hk") || l.hasPrefix("zh-mo")
+}()
+/// The text in the user's language. Traditional Chinese comes from `zh` when the string is built from
+/// pieces (interpolation), otherwise from the table in ZhHant.swift, keyed by the Japanese text
+/// (the same English is used for several different meanings, the Japanese is not).
+func L(_ ja: String, _ en: String, _ zh: @autoclosure () -> String? = nil) -> String {
+    if prefersJapanese { return ja }
+    if prefersTraditionalChinese { return zh() ?? zhHantByPair[ja + "\u{1}" + en] ?? zhHant[ja] ?? en }
+    return en
+}
 
 enum Tone: String, Codable { case neutral, good, warn, bad, info }
 
@@ -18,13 +31,16 @@ struct Row: Codable, Hashable, Identifiable {
     var value: String
     var mono = false
     var tone: Tone = .neutral
+    /// SF Symbol shown next to the key (permissions and the like).
+    var symbol: String?
     var id: String { key + "\u{1}" + value }
 
-    init(_ key: String, _ value: String, mono: Bool = false, tone: Tone = .neutral) {
+    init(_ key: String, _ value: String, mono: Bool = false, tone: Tone = .neutral, symbol: String? = nil) {
         self.key = key
         self.value = value
         self.mono = mono
         self.tone = tone
+        self.symbol = symbol
     }
 }
 

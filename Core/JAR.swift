@@ -328,7 +328,7 @@ enum JAR {
             badges.append(Badge(text: "Minecraft", tone: .info))
         } else if let m = mods.first {
             let server = ["Bukkit / Spigot", "Paper", "BungeeCord", "Velocity"].contains(m.loader)
-            kind = server ? L("Minecraft サーバーのプラグイン (\(m.loader))", "Minecraft server plugin (\(m.loader))") : L("Minecraft の Mod (\(m.loader))", "Minecraft mod (\(m.loader))")
+            kind = server ? L("Minecraft サーバーのプラグイン (\(m.loader))", "Minecraft server plugin (\(m.loader))", "Minecraft 伺服器外掛模組 (\(m.loader))") : L("Minecraft の Mod (\(m.loader))", "Minecraft mod (\(m.loader))", "Minecraft Mod (\(m.loader))")
             badges.append(Badge(text: m.loader, tone: .info))
             if let v = m.mcVersion, !v.isEmpty, !server { badges.append(Badge(text: "Minecraft " + v)) }
         } else if names.contains(where: { $0.hasPrefix("net/minecraftforge/common/") || $0.hasPrefix("cpw/mods/fml/common/") || $0.hasPrefix("net/fabricmc/loader/") }) {
@@ -414,7 +414,7 @@ enum JAR {
         sum.add(L("提供元", "Vendor"), mf["Implementation-Vendor"] ?? mf["Bundle-Vendor"] ?? mf["Specification-Vendor"])
         sum.add(L("起動するクラス", "Main class"), mf["Start-Class"] ?? mf["Main-Class"], mono: true)
         if let v = newest {
-            sum.add(L("必要な Java", "Java required"), "Java \(javaVersion(v)) " + L("以降", "or later") + L("（クラスファイル形式 \(v)）", " (class file version \(v))"))
+            sum.add(L("必要な Java", "Java required"), "Java \(javaVersion(v)) " + L("以降", "or later") + L("（クラスファイル形式 \(v)）", " (class file version \(v))", "（類別檔案格式 \(v)）"))
         }
         if names.contains(where: { $0.hasPrefix("META-INF/versions/") }) || mf["Multi-Release"]?.lowercased() == "true" {
             let vs = Set(names.compactMap { n -> Int? in n.hasPrefix("META-INF/versions/") ? Int(n.dropFirst(18).prefix { $0 != "/" }) : nil }).sorted()
@@ -467,7 +467,7 @@ enum JAR {
                 let impls = zip.read(e, max: 1 << 16).map { String(decoding: $0, as: UTF8.self).split(separator: "\n").map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty && !$0.hasPrefix("#") } } ?? []
                 let shown: String = impls.prefix(6).joined(separator: "\n")
                 let extra: Int = impls.count - 6
-                let more: String = extra > 0 ? L("\n… ほか \(extra) 個", "\n… and \(extra) more") : ""
+                let more: String = extra > 0 ? L("\n… ほか \(extra) 個", "\n… and \(extra) more", "\n… 另有 \(extra) 個") : ""
                 rows.append([String(e.name.dropFirst(18)), shown + more])
             }
             sections.append(ReportSection(id: "services", title: L("登録している機能 (ServiceLoader)", "Service Providers"), symbol: "point.3.connected.trianglepath.dotted",
@@ -487,7 +487,7 @@ enum JAR {
             let rows = pkgs.sorted { $0.value.count > $1.value.count }.prefix(opts.deep ? 2000 : 200).map { [$0.key.isEmpty ? L("（パッケージなし）", "(default package)") : $0.key, "\($0.value.count)", byteSize($0.value.size)] }
             var blocks: [Block] = [.table(TableData(columns: [L("パッケージ", "Package"), L("クラス数", "Classes"), L("サイズ", "Size")], rows: rows, total: pkgs.count))]
             if versions.count > 1 {
-                blocks.append(.heading(L("クラスファイルの形式（調べた \(sampled) 個の内訳）", "Class file versions (of \(sampled) sampled)")))
+                blocks.append(.heading(L("クラスファイルの形式（調べた \(sampled) 個の内訳）", "Class file versions (of \(sampled) sampled)", "類別檔案格式（已檢查 \(sampled) 個的統計）")))
                 blocks.append(.rows(versions.sorted { $0.key > $1.key }.map { Row("Java \(javaVersion($0.key))", "\($0.value)") }))
             }
             sections.append(ReportSection(id: "packages", title: L("パッケージ", "Packages"), symbol: "shippingbox", blocks: blocks, count: pkgs.count))

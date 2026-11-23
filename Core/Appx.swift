@@ -169,7 +169,7 @@ enum Appx {
         let display = clean(props?.first("DisplayName")?.text) ?? clean(ve?.attrs["DisplayName"]) ?? identity?.attrs["Name"]
         rep.title = display ?? rep.title
         let version = identity?.attrs["Version"]
-        rep.subtitle = (isBundle ? L("Windows アプリのバンドル (\(ext)bundle)", "Windows app bundle (\(ext)bundle)") : L("Windows アプリのパッケージ (\(ext))", "Windows app package (\(ext))"))
+        rep.subtitle = (isBundle ? L("Windows アプリのバンドル (\(ext)bundle)", "Windows app bundle (\(ext)bundle)", "Windows App 套件包 (\(ext)bundle)") : L("Windows アプリのパッケージ (\(ext))", "Windows app package (\(ext))", "Windows App 套件 (\(ext))"))
             + (version.map { " · " + L("バージョン ", "Version ") + $0 } ?? "")
         if let man, let d = iconData(pkg, manifest: man) { rep.icon = ImageKit.decode(d) }
 
@@ -220,7 +220,7 @@ enum Appx {
         }
         sum.add(L("技術", "Built with"), tech.joined(separator: ", "))
         sum.add(L("説明", "Description"), clean(props?.first("Description")?.text))
-        sum.add(L("サイズ", "Size"), byteSize(fileSize) + L("（展開後 ", " (unpacked ") + byteSize(zip.totalUncompressed) + L("、\(zip.entries.count) 項目）", ", \(zip.entries.count) items)"))
+        sum.add(L("サイズ", "Size"), byteSize(fileSize) + L("（展開後 ", " (unpacked ") + byteSize(zip.totalUncompressed) + L("、\(zip.entries.count) 項目）", ", \(zip.entries.count) items)", "，\(zip.entries.count) 個項目）"))
         rep.summary = sum
 
         if let s = sig { rep.sections.append(s.section) }

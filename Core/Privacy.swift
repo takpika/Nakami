@@ -61,6 +61,37 @@ enum Privacy {
         "com.apple.developer.driverkit": ("ドライバー", "DriverKit"), "com.apple.developer.screen-capture.include-passthrough": ("画面の取り込み", "Screen capture"),
     ]
 
+    /// Entitlements that weaken the protections an app normally runs under.
+    static let risky: Set<String> = [
+        "com.apple.security.cs.disable-library-validation", "com.apple.security.cs.allow-jit", "com.apple.security.cs.allow-unsigned-executable-memory",
+        "com.apple.security.cs.allow-dyld-environment-variables", "com.apple.security.get-task-allow", "get-task-allow", "com.apple.security.files.all",
+        "com.apple.developer.endpoint-security.client",
+    ]
+
+    /// SF Symbol for a usage-description key or an entitlement, matched on a part of the key.
+    static func symbol(for key: String) -> String {
+        let k = key.lowercased()
+        let table: [(String, String)] = [
+            ("camera", "camera.fill"), ("microphone", "mic.fill"), ("audio-input", "mic.fill"), ("audiocapture", "waveform"), ("speech", "waveform"),
+            ("location", "location.fill"), ("photo", "photo.fill"), ("contacts", "person.crop.circle.fill"), ("addressbook", "person.crop.circle.fill"),
+            ("calendar", "calendar"), ("reminders", "checklist"), ("bluetooth", "dot.radiowaves.left.and.right"), ("usertracking", "eye.fill"),
+            ("networkextension", "lock.shield.fill"), ("vpn", "lock.shield.fill"), ("wifi", "wifi"), ("network", "network"), ("multicast", "network"),
+            ("faceid", "faceid"), ("motion", "figure.walk"), ("health", "heart.fill"), ("homekit", "house.fill"), ("applemusic", "music.note"),
+            ("siri", "mic.circle.fill"), ("appleevents", "gearshape.2.fill"), ("apple-events", "gearshape.2.fill"), ("systemadministration", "gearshape.2.fill"),
+            ("screencapture", "rectangle.dashed.badge.record"), ("screen-capture", "rectangle.dashed.badge.record"), ("inputmonitoring", "keyboard.fill"),
+            ("accessibility", "accessibility"), ("usb", "cable.connector"), ("nfc", "wave.3.right.circle.fill"), ("nearbyinteraction", "wave.3.right.circle.fill"),
+            ("aps-environment", "bell.badge.fill"), ("usernotifications", "bell.badge.fill"), ("alarm", "alarm.fill"), ("critical", "bell.badge.fill"),
+            ("icloud", "icloud.fill"), ("ubiquity", "icloud.fill"), ("keychain", "key.fill"), ("application-groups", "square.stack.3d.up.fill"),
+            ("in-app-payments", "creditcard.fill"), ("applesignin", "person.badge.key.fill"), ("family-controls", "hourglass"), ("carplay", "car.fill"),
+            ("get-task-allow", "ant.fill"), ("security.cs.", "exclamationmark.triangle.fill"), ("endpoint-security", "eye.fill"),
+            ("system-extension", "puzzlepiece.extension.fill"), ("driverkit", "puzzlepiece.extension.fill"), ("memory", "memorychip.fill"),
+            ("associated-domains", "link"), ("appattest", "checkmark.shield.fill"), ("focusstatus", "moon.fill"), ("gkfriend", "gamecontroller.fill"),
+            ("identity", "person.text.rectangle.fill"), ("worldsensing", "cube.transparent"), ("hands", "hand.raised.fill"), ("sensorkit", "sensor.fill"),
+            ("videosubscriber", "tv.fill"), ("folder", "folder.fill"), ("files", "folder.fill"), ("volumes", "externaldrive.fill"), ("fileprovider", "folder.fill"),
+        ]
+        return table.first { k.contains($0.0) }?.1 ?? "hand.raised.fill"
+    }
+
     /// SDKs recognised from the names of bundled frameworks.
     static let sdks: [(match: String, name: String, kind: String)] = [
         ("firebaseanalytics", "Firebase Analytics", "analytics"), ("firebasecrashlytics", "Firebase Crashlytics", "crash"), ("firebase", "Firebase", "analytics"),
@@ -72,6 +103,14 @@ enum Privacy {
         ("tiktok", "TikTok SDK", "ads"), ("singular", "Singular", "attribution"), ("kochava", "Kochava", "attribution"), ("instabug", "Instabug", "crash"),
         ("appcenter", "App Center", "crash"), ("revenuecat", "RevenueCat", "purchases"), ("sparkle", "Sparkle", "updates"), ("pangle", "Pangle", "ads"), ("mopub", "MoPub", "ads"),
     ]
+
+    /// The display text for a term these tables give in Japanese: Japanese, its Traditional Chinese, or the readable key.
+    static func termText(_ ja: String?, fallback: String) -> String {
+        guard let ja else { return fallback }
+        if prefersJapanese { return ja }
+        if prefersTraditionalChinese { return zhHant[ja] ?? fallback }
+        return fallback
+    }
 
     static func humanize(_ id: String, prefix: String) -> String {
         var s = id.hasPrefix(prefix) ? String(id.dropFirst(prefix.count)) : id
@@ -113,13 +152,14 @@ enum Privacy {
         let keys = info.keys.filter { $0.hasSuffix("UsageDescription") || $0 == "NFCReaderUsageDescription" || $0 == "NSLocationTemporaryUsageDescriptionDictionary" }.sorted()
         if !keys.isEmpty {
             blocks.append(.heading(L("求める可能性のある許可（アプリが示す理由）", "Permissions it may ask for (with the app's stated reason)")))
-            var rows = [[String]]()
+            var rows = [Row]()
             for k in keys {
-                let row = [usage[k].map { L($0.ja, $0.en) } ?? humanize(k.replacingOccurrences(of: "UsageDescription", with: ""), prefix: "NS"), describePlistValue(localized[k] ?? info[k]!)]
+                let row = Row(usage[k].map { L($0.ja, $0.en) } ?? humanize(k.replacingOccurrences(of: "UsageDescription", with: ""), prefix: "NS"),
+                              describePlistValue(localized[k] ?? info[k]!), tone: k == "NSUserTrackingUsageDescription" ? .warn : .neutral, symbol: symbol(for: k))
                 if !rows.contains(row) { rows.append(row) }   // old and new keys for the same thing often carry the same text
             }
-            blocks.append(.table(TableData(columns: [L("対象", "What"), L("アプリの説明", "Stated reason")], rows: rows)))
-            points.append(L("許可 \(keys.count) 種", "\(keys.count) permissions"))
+            blocks.append(.rows(rows))
+            points.append(L("許可 \(keys.count) 種", "\(keys.count) permissions", "\(keys.count) 種許可"))
         }
         let tracksByPrompt = info["NSUserTrackingUsageDescription"] != nil
 
@@ -136,28 +176,28 @@ enum Privacy {
                 let type = humanize((d["NSPrivacyCollectedDataType"] as? String) ?? "", prefix: "NSPrivacyCollectedDataType").replacingOccurrences(of: " ", with: "")
                 let purposeList = ((d["NSPrivacyCollectedDataTypePurposes"] as? [String]) ?? []).map { p -> String in
                     let k = p.replacingOccurrences(of: "NSPrivacyCollectedDataTypePurpose", with: "")
-                    return prefersJapanese ? (purposes[k] ?? k) : humanize(k, prefix: "")
+                    return termText(purposes[k], fallback: humanize(k, prefix: ""))
                 }
-                collected.append([prefersJapanese ? (dataTypes[type] ?? type) : humanize(type, prefix: ""),
+                collected.append([termText(dataTypes[type], fallback: humanize(type, prefix: "")),
                                   (d["NSPrivacyCollectedDataTypeLinked"] as? Bool) == true ? L("ひも付ける", "Linked") : L("ひも付けない", "Not linked"),
                                   (d["NSPrivacyCollectedDataTypeTracking"] as? Bool) == true ? L("使う", "Yes") : L("使わない", "No"),
                                   purposeList.joined(separator: L("、", ", ")), who])
             }
             for a in (m.plist["NSPrivacyAccessedAPITypes"] as? [[String: Any]]) ?? [] {
                 let t = (a["NSPrivacyAccessedAPIType"] as? String) ?? ""
-                apis.append([prefersJapanese ? (apiTypes[t] ?? t) : humanize(t, prefix: "NSPrivacyAccessedAPICategory"),
+                apis.append([termText(apiTypes[t], fallback: humanize(t, prefix: "NSPrivacyAccessedAPICategory")),
                              ((a["NSPrivacyAccessedAPITypeReasons"] as? [String]) ?? []).joined(separator: ", "), who])
             }
         }
         if !manifests.isEmpty {
-            blocks.append(.heading(L("プライバシーマニフェスト（\(manifests.count) 個）", "Privacy manifests (\(manifests.count))")))
+            blocks.append(.heading(L("プライバシーマニフェスト（\(manifests.count) 個）", "Privacy manifests (\(manifests.count))", "隱私權清單（\(manifests.count) 個）")))
             var rows = [Row]()
             rows.add(L("トラッキング", "Tracking"), tracking ? L("行うと宣言しています", "Declared") : L("行わないと宣言しています", "Declared as none"), tone: tracking ? .warn : .good)
             rows.add(L("トラッキング用のドメイン", "Tracking domains"), Array(Set(domains)).sorted().joined(separator: "\n"), mono: true)
             blocks.append(.rows(rows))
             if !collected.isEmpty {
                 blocks.append(.table(TableData(columns: [L("収集するデータ", "Data collected"), L("本人とのひも付け", "Linked to you"), L("トラッキングに使用", "Used for tracking"), L("目的", "Purposes"), L("宣言元", "Declared by")], rows: collected)))
-                points.append(L("収集データ \(collected.count) 種", "\(collected.count) data types"))
+                points.append(L("収集データ \(collected.count) 種", "\(collected.count) data types", "\(collected.count) 種收集的資料"))
             }
             if !apis.isEmpty {
                 blocks.append(.table(TableData(columns: [L("理由の申告が必要な API", "Required-reason API"), L("理由コード", "Reason codes"), L("宣言元", "Declared by")], rows: apis)))
@@ -191,15 +231,17 @@ enum Privacy {
 
         // 4. Entitlements that give access to personal data or widen what the app may do
         if let ents {
-            let hits = ents.keys.sorted().compactMap { k -> [String]? in
+            // The raw keys and values are listed in the Entitlements section; here they are named in plain words.
+            let hits = ents.keys.sorted().compactMap { k -> Row? in
                 guard let name = entitlements[k] else { return nil }
                 let v = describePlistValue(ents[k]!)
                 if v == "false" { return nil }
-                return [L(name.ja, name.en), v == "true" ? "" : v, k]
+                return Row(L(name.ja, name.en), v == "true" ? L("認められています", "Granted") : v, mono: v != "true",
+                           tone: risky.contains(k) ? .warn : .neutral, symbol: symbol(for: k))
             }
             if !hits.isEmpty {
                 blocks.append(.heading(L("署名で認められている権限", "Capabilities granted by the signature")))
-                blocks.append(.table(TableData(columns: [L("権限", "Capability"), L("値", "Value"), L("エンタイトルメント", "Entitlement")], rows: hits)))
+                blocks.append(.rows(hits))
             }
         }
 

@@ -65,7 +65,7 @@ enum LinuxApp {
             app.rows.add(L("カテゴリ", "Categories"), e["Categories"]?.split(separator: ";").joined(separator: ", "))
             app.rows.add(L("対応するファイルの種類", "Opens"), e["MimeType"].map { m in
                 let all = m.split(separator: ";").filter { !$0.isEmpty }
-                return all.prefix(8).joined(separator: ", ") + (all.count > 8 ? L(" ほか \(all.count - 8) 種類", " and \(all.count - 8) more") : "")
+                return all.prefix(8).joined(separator: ", ") + (all.count > 8 ? L(" ほか \(all.count - 8) 種類", " and \(all.count - 8) more", "，另有 \(all.count - 8) 種") : "")
             })
             if e["Terminal"] == "true" { app.rows.add(L("端末で動作", "Runs in a terminal"), L("はい", "Yes")) }
             app.rows.add(L("メニュー項目のファイル", "Desktop entry"), path, mono: true)
@@ -81,7 +81,7 @@ enum LinuxApp {
         func names(_ test: (String) -> Bool, _ cap: Int = 12) -> String? {
             let all = entries.filter { !$0.isDir && test($0.name) }.map { ($0.name as NSString).lastPathComponent }
             guard !all.isEmpty else { return nil }
-            return all.prefix(cap).joined(separator: ", ") + (all.count > cap ? L(" ほか \(all.count - cap) 個", " and \(all.count - cap) more") : "")
+            return all.prefix(cap).joined(separator: ", ") + (all.count > cap ? L(" ほか \(all.count - cap) 個", " and \(all.count - cap) more", "，另有 \(all.count - cap) 個") : "")
         }
         func inDir(_ dirs: [String]) -> (String) -> Bool { { n in dirs.contains { n.hasPrefix($0) && !n.dropFirst($0.count).contains("/") } } }
         rows.add(L("入るコマンド", "Commands"), names(inDir(["usr/bin/", "bin/", "usr/sbin/", "sbin/", "usr/local/bin/", "usr/games/"])), mono: true)
@@ -405,7 +405,7 @@ enum RPM {
         sum.add(L("作成者", "Packager"), h.str(1015))
         sum.add("URL", h.str(1020))
         sum.add(L("分類", "Group"), h.str(1016) == "Unspecified" ? nil : h.str(1016))
-        if let t = h.ints(1006).first, t > 0 { sum.add(L("ビルド日時", "Built"), dateString(Date(timeIntervalSince1970: Double(t))) + (h.str(1007).map { L("（\($0)）", " (\($0))") } ?? "")) }
+        if let t = h.ints(1006).first, t > 0 { sum.add(L("ビルド日時", "Built"), dateString(Date(timeIntervalSince1970: Double(t))) + (h.str(1007).map { L("（\($0)）", " (\($0))", "（\($0)）") } ?? "")) }
         sum.add(L("元のソースパッケージ", "Source package"), h.str(1044), mono: true)
         let installed = h.ints(1009).first ?? h.ints(5009).first
         sum.add(L("インストール後のサイズ", "Installed size"), installed.map { byteSize($0) })
@@ -416,7 +416,7 @@ enum RPM {
         if !scripts.isEmpty { sum.add(L("インストール時に実行", "Runs on install"), scripts.map { $0.0 }.joined(separator: ", "), mono: true) }
         let comp = h.str(1125) ?? Unpack.codec(r, h.end).rawValue
         sum.add(L("圧縮", "Compression"), comp.isEmpty ? nil : comp + (h.str(1124).map { " (\($0))" } ?? ""))
-        if let b = pgpBlob { sum.add(L("署名", "Signature"), "OpenPGP" + (pgp(b).map { L("（\($0)）", " (\($0))") } ?? ""), tone: .good) }
+        if let b = pgpBlob { sum.add(L("署名", "Signature"), "OpenPGP" + (pgp(b).map { L("（\($0)）", " (\($0))", "（\($0)）") } ?? ""), tone: .good) }
         else { sum.add(L("署名", "Signature"), L("なし", "None")) }
         sum.add(L("ファイル数", "Files"), entries.isEmpty ? nil : "\(entries.filter { !$0.isDir }.count)")
         sum.add(L("サイズ", "Size"), byteSizeExact(data.count))

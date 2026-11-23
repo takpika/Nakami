@@ -385,7 +385,7 @@ enum APK {
         sum.add(L("対応 CPU", "ABIs"), abis.isEmpty ? L("ネイティブコードなし（全 CPU 対応）", "No native code (any CPU)") : abis.keys.sorted().joined(separator: ", "))
         sum.add(L("技術", "Built with"), tech.joined(separator: ", "))
         sum.add(L("権限", "Permissions"), permissions.isEmpty ? nil : "\(permissions.count)" + L(" 個", ""))
-        sum.add(L("サイズ", "Size"), byteSize(fileSize) + L("（展開後 ", " (unpacked ") + byteSize(zip.totalUncompressed) + L("、\(zip.entries.count) 項目）", ", \(zip.entries.count) items)"))
+        sum.add(L("サイズ", "Size"), byteSize(fileSize) + L("（展開後 ", " (unpacked ") + byteSize(zip.totalUncompressed) + L("、\(zip.entries.count) 項目）", ", \(zip.entries.count) items)", "，\(zip.entries.count) 個項目）"))
         rep.summary = sum
 
         // Signature

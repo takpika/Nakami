@@ -60,7 +60,7 @@ enum ClassicMac {
     ]
 
     static func kindName(_ type: String) -> String {
-        typeNames[type].map { L($0.ja, $0.en) } ?? (type.isEmpty ? L("ファイル", "File") : L("書類（タイプ \(type)）", "Document (type \(type))"))
+        typeNames[type].map { L($0.ja, $0.en) } ?? (type.isEmpty ? L("ファイル", "File") : L("書類（タイプ \(type)）", "Document (type \(type))", "文件（類型 \(type)）"))
     }
 
     // MARK: resource fork
@@ -383,7 +383,7 @@ enum ClassicMac {
         sum.add(L("クリエーター", "Creator"), f.creator.isEmpty ? nil : f.creator + (creatorNames[f.creator].map { " (\($0))" } ?? ""), mono: true)
         if let res, let s = res.get("SIZE", -1) ?? res.get("SIZE", 0) ?? res.get("SIZE", 1), s.count >= 10 {
             let r = Reader(s, little: false)
-            sum.add(L("使用メモリー", "Memory"), L("推奨 \(byteSize(Int(r.u32(2))))、最小 \(byteSize(Int(r.u32(6))))", "preferred \(byteSize(Int(r.u32(2)))), minimum \(byteSize(Int(r.u32(6))))"))
+            sum.add(L("使用メモリー", "Memory"), L("推奨 \(byteSize(Int(r.u32(2))))、最小 \(byteSize(Int(r.u32(6))))", "preferred \(byteSize(Int(r.u32(2)))), minimum \(byteSize(Int(r.u32(6))))", "建議 \(byteSize(Int(r.u32(2))))、最小 \(byteSize(Int(r.u32(6))))"))
             let flags = r.u16(0)
             sum.add(L("32 ビットアドレス", "32-bit addressing"), flags & 0x0080 != 0 ? L("対応", "Compatible") : L("非対応（24 ビットモードが必要）", "Not compatible (needs 24-bit mode)"))
             if flags & 0x1000 != 0 { sum.add(L("バックグラウンド動作", "Background"), L("可能", "Can run in the background")) }
@@ -395,7 +395,7 @@ enum ClassicMac {
         }
         sum.add(L("包み方", "Wrapped as"), f.wrapper)
         sum.add(L("データフォーク", "Data fork"), byteSize(f.data.count))
-        sum.add(L("リソースフォーク", "Resource fork"), byteSize(f.resource.count) + (res.map { L("（リソース \($0.entries.count) 個）", " (\($0.entries.count) resources)") } ?? ""))
+        sum.add(L("リソースフォーク", "Resource fork"), byteSize(f.resource.count) + (res.map { L("（リソース \($0.entries.count) 個）", " (\($0.entries.count) resources)", "（資源 \($0.entries.count) 個）") } ?? ""))
         if let c = f.created { sum.add(L("作成日時", "Created"), dateString(c)) }
         if let m = f.modified { sum.add(L("変更日時", "Modified"), dateString(m)) }
         sum.add(L("サイズ", "Size"), byteSizeExact(fileSize))
@@ -449,7 +449,7 @@ enum ClassicMac {
         if f.data.count > 64, var rep = inner(f.data, f.name) {
             rep.path = url.path
             let at = rep.summary.firstIndex { $0.key == L("サイズ", "Size") } ?? rep.summary.count
-            rep.summary.insert(Row(L("包み方", "Wrapped as"), f.wrapper + L("（中のファイル: \(f.name)）", " (file inside: \(f.name))")), at: at)
+            rep.summary.insert(Row(L("包み方", "Wrapped as"), f.wrapper + L("（中のファイル: \(f.name)）", " (file inside: \(f.name))", "（內含檔案：\(f.name)）")), at: at)
             if at < rep.summary.count - 0, let s = rep.summary.firstIndex(where: { $0.key == L("サイズ", "Size") }) { rep.summary[s] = Row(L("サイズ", "Size"), byteSizeExact(data.count)) }
             if rep.icon == nil, let res = Resources(f.resource) { rep.icon = bundleIcon(res, type: f.type) }
             return rep

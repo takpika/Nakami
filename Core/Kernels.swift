@@ -170,7 +170,7 @@ enum Kernels {
             rows.add(L("起動オプション", "Kernel command line"), text(".cmdline"), mono: true)
             rows.add(L("初期 RAM ディスク", "Initial RAM disk"), sections.first { $0.name == ".initrd" }.map { byteSize($0.rawSize) + L(" を同梱", " included") })
             let dtbs = sections.filter { $0.name == ".dtb" || $0.name == ".dtbauto" }.count
-            rows.add(L("デバイスツリー", "Device trees"), dtbs > 0 ? L("\(dtbs) 個を同梱（機種に合うものが起動時に選ばれます）", "\(dtbs) included (the matching one is picked at boot)") : nil)
+            rows.add(L("デバイスツリー", "Device trees"), dtbs > 0 ? L("\(dtbs) 個を同梱（機種に合うものが起動時に選ばれます）", "\(dtbs) included (the matching one is picked at boot)", "內含 \(dtbs) 個（開機時會選用符合機型的項目）") : nil)
             rows.add(L("起動画面の画像", "Splash image"), sections.contains { $0.name == ".splash" } ? L("あり", "Yes") : nil)
             if let sb = text(".sbat") {
                 let stub = sb.components(separatedBy: "\n").dropFirst().compactMap { $0.split(separator: ",").first.map(String.init) }.filter { $0 != "sbat" }
@@ -215,7 +215,7 @@ enum Kernels {
             }
             let table = counts.sorted { $0.1 > $1.1 }.map { [$0.0, "\($0.1)"] }
             rows.add(L("依存する部品", "Depends on"), imports.joined(separator: ", "), mono: true)
-            let partial = exports.count < total ? L("（先頭 \(exports.count) 個での集計）", " (from the first \(exports.count))") : ""
+            let partial = exports.count < total ? L("（先頭 \(exports.count) 個での集計）", " (from the first \(exports.count))", "（以前 \(exports.count) 個統計）") : ""
             return (reactos ? L("ReactOS のカーネル本体", "ReactOS kernel") : L("Windows のカーネル本体 (NT カーネル)", "Windows kernel (NT kernel)"), rows,
                     ReportSection(id: "kernel", title: L("カーネル", "Kernel"), symbol: "cpu", blocks: [.rows(rows), .heading(L("公開している関数の内訳", "Exported functions by area") + partial),
                                                                                                     .table(TableData(columns: [L("分野", "Area"), L("関数の数", "Functions")], rows: table))]))

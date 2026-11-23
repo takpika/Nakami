@@ -69,7 +69,7 @@ enum PC98 {
             var img = Image(device: DataDevice(out), format: "NFD (T98-Next)")
             img.rows.add(L("コメント", "Comment"), text(r.bytes(0x10, 0x100)))
             img.rows.add(L("ディスクの種類", "Media"), floppyKind(out.count, sectorSize: sizes.first ?? 0))
-            if odd > 0 { img.rows.add(L("特殊なセクター", "Unusual sectors"), L("\(odd) 個（コピープロテクトの可能性）", "\(odd) (possibly copy protection)")) }
+            if odd > 0 { img.rows.add(L("特殊なセクター", "Unusual sectors"), L("\(odd) 個（コピープロテクトの可能性）", "\(odd) (possibly copy protection)", "\(odd) 個（可能有拷貝保護）")) }
             return img
         }
         if r.fixedStr(0, 14) == "T98FDDIMAGE.R1" {
@@ -92,7 +92,7 @@ enum PC98 {
             if hard { img.geometry = (cyl, heads, spt, ss) }
             else {
                 img.rows.add(L("ディスクの種類", "Media"), floppyKind(dsize, sectorSize: ss))
-                img.rows.add(L("記録の形", "Geometry"), L("\(cyl) シリンダー × \(heads) 面 × \(spt) セクター、1 セクター \(ss) バイト", "\(cyl) cylinders × \(heads) sides × \(spt) sectors of \(ss) bytes"))
+                img.rows.add(L("記録の形", "Geometry"), L("\(cyl) シリンダー × \(heads) 面 × \(spt) セクター、1 セクター \(ss) バイト", "\(cyl) cylinders × \(heads) sides × \(spt) sectors of \(ss) bytes", "\(cyl) 磁柱 × \(heads) 面 × \(spt) 磁區，每磁區 \(ss) 位元組"))
             }
             return img
         }
@@ -141,9 +141,9 @@ enum PC98 {
             img.rows.add(L("ディスク名", "Disk name"), img.name)
             img.rows.add(L("ディスクの種類", "Media"), media)
             img.rows.add(L("書き込み禁止", "Write-protected"), r.u8(0x1a) != 0 ? L("はい", "Yes") : nil)
-            img.rows.add(L("トラックとセクター", "Tracks and sectors"), L("\(tracks) トラック、\(sectors) セクター", "\(tracks) tracks, \(sectors) sectors"))
+            img.rows.add(L("トラックとセクター", "Tracks and sectors"), L("\(tracks) トラック、\(sectors) セクター", "\(tracks) tracks, \(sectors) sectors", "\(tracks) 磁軌、\(sectors) 磁區"))
             img.rows.add(L("セクターの大きさ", "Sector sizes"), sizes.sorted { $0.value > $1.value }.map { "\($0.key) B × \($0.value)" }.joined(separator: ", "))
-            if odd > 0 || sizes.count > 1 { img.rows.add(L("特殊なセクター", "Unusual sectors"), L("あり（大きさの違うセクターや、消去マーク・エラーつきが \(odd) 個。コピープロテクトの可能性）", "Yes (mixed sizes, or \(odd) with deleted marks / errors: possibly copy protection)")) }
+            if odd > 0 || sizes.count > 1 { img.rows.add(L("特殊なセクター", "Unusual sectors"), L("あり（大きさの違うセクターや、消去マーク・エラーつきが \(odd) 個。コピープロテクトの可能性）", "Yes (mixed sizes, or \(odd) with deleted marks / errors: possibly copy protection)", "是（有大小不一的磁區，或有刪除標記、錯誤的磁區共 \(odd) 個。可能有拷貝保護）")) }
             if size < n { img.rows.add(L("収録枚数", "Disks in this file"), L("複数（最初の 1 枚を表示）", "Several (showing the first)")) }
             return img
         }
@@ -165,7 +165,7 @@ enum PC98 {
             let name = text(t.bytes(e + 16, 16))
             guard name.unicodeScalars.allSatisfy({ $0.value >= 0x20 }) else { continue }
             let state = (mid & 0x80 != 0 ? L("起動可", "bootable") : "") + (sid & 0x80 == 0 ? L(" スリープ", " inactive") : "")
-            parts.append(Partition(name: name, type: (kinds[sid & 0x7f] ?? String(format: "0x%02X", sid & 0x7f)) + (state.isEmpty ? "" : L("（\(state.trimmingCharacters(in: .whitespaces))）", " (\(state.trimmingCharacters(in: .whitespaces)))")),
+            parts.append(Partition(name: name, type: (kinds[sid & 0x7f] ?? String(format: "0x%02X", sid & 0x7f)) + (state.isEmpty ? "" : L("（\(state.trimmingCharacters(in: .whitespaces))）", " (\(state.trimmingCharacters(in: .whitespaces)))", "（\(state.trimmingCharacters(in: .whitespaces))）")),
                                    start: start, size: Swift.min(end, dev.size) - start))
         }
         return parts.isEmpty ? nil : parts

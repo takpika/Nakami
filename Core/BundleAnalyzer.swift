@@ -18,7 +18,7 @@ enum BundleAnalyzer {
         switch url.pathExtension.lowercased() {
         case "app":
             if let p = info["CFBundleSupportedPlatforms"] as? [String], let f = p.first, f != "MacOSX" {
-                return L("アプリケーション (\(f))", "Application (\(f))")
+                return L("アプリケーション (\(f))", "Application (\(f))", "App (\(f))")
             }
             return L("アプリケーション", "Application")
         case "framework": return L("フレームワーク", "Framework")
@@ -446,7 +446,7 @@ enum BundleAnalyzer {
         var srows = [Row]()
         srows.add(L("判定", "Assessment"), origin, tone: originTone)
         if let v = sec.validity {
-            srows.add(L("署名の検証", "Validity"), (v == errSecSuccess ? L("有効", "Valid") : secErrorText(v)) + (sec.validityNote.map { "（\($0)）" } ?? ""), tone: v == errSecSuccess ? .good : .bad)
+            srows.add(L("署名の検証", "Validity"), (v == errSecSuccess ? L("有効", "Valid") : secErrorText(v)) + (sec.validityNote.map { L("（\($0)）", " (\($0))", "（\($0)）") } ?? ""), tone: v == errSecSuccess ? .good : .bad)
         }
         if signed {
             srows.add(L("署名者", "Signed by"), certNames.first ?? L("なし（アドホック）", "None (ad hoc)"))
@@ -494,7 +494,7 @@ enum BundleAnalyzer {
             let mainTeam = sec.teamID ?? own?.teamID
             let foreign = Set(comps.items.map { $0.team }.filter { !$0.isEmpty && $0 != mainTeam })
             if let mainTeam, !foreign.isEmpty {
-                blocks.append(.note(L("本体 (\(mainTeam)) と異なる Team ID のコンポーネントがあります: ", "Some components are signed by a different team than the app (\(mainTeam)): ") + foreign.sorted().joined(separator: ", ")))
+                blocks.append(.note(L("本体 (\(mainTeam)) と異なる Team ID のコンポーネントがあります: ", "Some components are signed by a different team than the app (\(mainTeam)): ", "部分元件的 Team ID 與主程式 (\(mainTeam)) 不同：") + foreign.sorted().joined(separator: ", ")))
             }
             if comps.truncated { blocks.append(.note(L("一覧は途中までです。Nakami で開くとすべて表示します。", "List truncated. Open in Nakami for everything."))) }
             rep.sections.append(ReportSection(id: "components", title: L("コンポーネント", "Components"), symbol: "shippingbox", blocks: blocks, count: comps.items.count))
@@ -525,7 +525,7 @@ enum BundleAnalyzer {
                     files += 1
                 }
             }
-            rep.summary.add(L("ディスク上のサイズ", "Size on disk"), (partial ? "≥ " : "") + byteSize(total) + L("（\(files) ファイル）", " (\(files) files)"))
+            rep.summary.add(L("ディスク上のサイズ", "Size on disk"), (partial ? "≥ " : "") + byteSize(total) + L("（\(files) ファイル）", " (\(files) files)", "（\(files) 個檔案）"))
         }
         return rep
     }

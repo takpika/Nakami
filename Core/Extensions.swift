@@ -92,7 +92,7 @@ enum AppExtensions {
                 let parts = d.keys.sorted().compactMap { k -> String? in
                     let v = describePlistValue(d[k]!)
                     if v == "0" || v == "false" { return nil }
-                    return (names[k] ?? k) + (v == "true" ? "" : L("（最大 \(v)）", " (up to \(v))"))
+                    return (names[k] ?? k) + (v == "true" ? "" : L("（最大 \(v)）", " (up to \(v))", "（最多 \(v)）"))
                 }
                 rows.add(L("現れる条件", "Offered for"), parts.joined(separator: "\n"))
             }

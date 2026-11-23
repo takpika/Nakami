@@ -17,6 +17,18 @@ let json = flag("--json")
 let deep = flag("--deep")
 let png = option("--png")
 let width = option("--width").flatMap { Double($0) } ?? 640
+// nakami --report sample.json [--icon icon.png] --png out.png [--width N] [--dark]
+// Renders a report read from JSON instead of analysing a file (used to produce pictures from sample data).
+let dark = flag("--dark")
+if let reportPath = option("--report") {
+    guard let png, let data = FileManager.default.contents(atPath: reportPath), var sample = try? JSONDecoder().decode(Report.self, from: data) else {
+        FileHandle.standardError.write(Data("usage: nakami --report sample.json [--icon icon.png] --png out.png [--width N] [--dark]\n".utf8))
+        exit(2)
+    }
+    if let iconPath = option("--icon"), let d = FileManager.default.contents(atPath: iconPath) { sample.icon = ImageKit.decode(d) }
+    MainActor.assumeIsolated { renderPNG(sample, to: URL(fileURLWithPath: png), width: width, dark: dark) }
+    exit(0)
+}
 guard let path = args.first else {
     FileHandle.standardError.write(Data("usage: nakami <file-or-bundle> [--json] [--deep] [--png out.png [--width N]]\n".utf8))
     exit(2)
@@ -27,7 +39,7 @@ let report = Analyzer.analyze(URL(fileURLWithPath: path), opts: AnalyzeOptions(d
 let elapsed = Date().timeIntervalSince(t0)
 
 if let png {
-    MainActor.assumeIsolated { renderPNG(report, to: URL(fileURLWithPath: png), width: width) }
+    MainActor.assumeIsolated { renderPNG(report, to: URL(fileURLWithPath: png), width: width, dark: dark) }
 } else if json {
     let enc = JSONEncoder()
     enc.outputFormatting = [.prettyPrinted, .sortedKeys, .withoutEscapingSlashes]
@@ -67,7 +79,7 @@ if let png {
                 print("  " + t.columns.enumerated().map { pad($0.element, w[$0.offset] + 2) }.joined())
                 for r in shown { print("  " + r.enumerated().map { pad($0.element, (w[safe: $0.offset] ?? 10) + 2) }.joined()) }
                 let total = t.total ?? t.rows.count
-                if total > shown.count { print("  … " + L("他 \(total - shown.count) 件", "\(total - shown.count) more")) }
+                if total > shown.count { print("  … " + L("他 \(total - shown.count) 件", "\(total - shown.count) more", "另有 \(total - shown.count) 項")) }
             }
         }
     }

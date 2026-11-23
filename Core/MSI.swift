@@ -417,7 +417,7 @@ enum MSI {
             s.add(L("インストールされるファイル", "Files installed"), "\(f.total)" + L(" 個、合計 ", " files, ") + byteSize(totalSize) + (f.total > f.rows.count ? "+" : ""))
         }
         if !cabs.isEmpty {
-            s.add(L("キャビネット", "Cabinets"), embedded == cabs.count ? L("\(cabs.count) 個（すべて内蔵）", "\(cabs.count) (all embedded)") : L("\(cabs.count) 個（うち外部 \(cabs.count - embedded) 個）", "\(cabs.count) (\(cabs.count - embedded) external)"))
+            s.add(L("キャビネット", "Cabinets"), embedded == cabs.count ? L("\(cabs.count) 個（すべて内蔵）", "\(cabs.count) (all embedded)", "\(cabs.count) 個（全部內嵌）") : L("\(cabs.count) 個（うち外部 \(cabs.count - embedded) 個）", "\(cabs.count) (\(cabs.count - embedded) external)", "\(cabs.count) 個（其中外部 \(cabs.count - embedded) 個）"))
         }
         s.add(L("必要な Windows Installer", "Requires Windows Installer"), schema > 0 ? "\(schema / 100).\(schema % 100 / 10)" + L(" 以降", " or later") : nil)
         s.add(L("作成ツール", "Created with"), creator)

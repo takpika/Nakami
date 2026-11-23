@@ -333,7 +333,7 @@ extension DiskImage {
         else if let i = systemIcon { f.icon = i }
         else if apps.count <= 3 || systemVersion == nil { f.icon = firstIcon }
         let exts = files.filter { $0.type == "INIT" }.count, cdevs = files.filter { $0.type == "cdev" }.count
-        f.rows.add(L("機能拡張とコントロールパネル", "Extensions and control panels"), exts + cdevs > 0 ? L("機能拡張 \(exts) 個、コントロールパネル \(cdevs) 個", "\(exts) extensions, \(cdevs) control panels") : nil)
+        f.rows.add(L("機能拡張とコントロールパネル", "Extensions and control panels"), exts + cdevs > 0 ? L("機能拡張 \(exts) 個、コントロールパネル \(cdevs) 個", "\(exts) extensions, \(cdevs) control panels", "延伸功能 \(exts) 個、控制面板 \(cdevs) 個") : nil)
 
         // All files, with what the Finder knows about them.
         let rows = files.sorted { $0.path.localizedStandardCompare($1.path) == .orderedAscending }.prefix(3000).map {
@@ -485,8 +485,8 @@ enum ClassicArchive {
         if apps.count == 1 { rep.title = (apps[0].path as NSString).lastPathComponent }
         var sum = [Row(L("種類", "Kind"), kind)]
         sum.add(L("形式", "Format"), format)
-        sum.add(L("中のアプリケーション", "Applications inside"), apps.isEmpty ? nil : apps.prefix(6).map { ($0.path as NSString).lastPathComponent }.joined(separator: "、") + (apps.count > 6 ? L(" ほか \(apps.count - 6) 個", " and \(apps.count - 6) more") : ""))
-        sum.add(L("ファイル数", "Files"), "\(files.count)" + L(" 個（フォルダー \(items.count - files.count) 個）", " (\(items.count - files.count) folders)"))
+        sum.add(L("中のアプリケーション", "Applications inside"), apps.isEmpty ? nil : apps.prefix(6).map { ($0.path as NSString).lastPathComponent }.joined(separator: "、") + (apps.count > 6 ? L(" ほか \(apps.count - 6) 個", " and \(apps.count - 6) more", "，另有 \(apps.count - 6) 個") : ""))
+        sum.add(L("ファイル数", "Files"), "\(files.count)" + L(" 個（フォルダー \(items.count - files.count) 個）", " (\(items.count - files.count) folders)", " 個（檔案夾 \(items.count - files.count) 個）"))
         let unpacked = files.reduce(0) { $0 + $1.dataLen + $1.rsrcLen }
         sum.add(L("展開後のサイズ", "Unpacked size"), byteSize(unpacked))
         let used = Set(files.flatMap { $0.method.components(separatedBy: " / ") }).filter { !$0.isEmpty }.sorted()

@@ -285,20 +285,20 @@ enum DiskImage {
         if let p = pc98 {
             sum.add(L("イメージの形式", "Image format"), p.format)
             sum.append(contentsOf: p.rows)
-            if let g = p.geometry { sum.add(L("ディスクの形", "Geometry"), L("\(g.cylinders) シリンダー × \(g.heads) ヘッド × \(g.sectors) セクター、1 セクター \(g.sectorSize) バイト（\(byteSize(dev.size))）", "\(g.cylinders) cylinders × \(g.heads) heads × \(g.sectors) sectors of \(g.sectorSize) bytes (\(byteSize(dev.size)))")) }
+            if let g = p.geometry { sum.add(L("ディスクの形", "Geometry"), L("\(g.cylinders) シリンダー × \(g.heads) ヘッド × \(g.sectors) セクター、1 セクター \(g.sectorSize) バイト（\(byteSize(dev.size))）", "\(g.cylinders) cylinders × \(g.heads) heads × \(g.sectors) sectors of \(g.sectorSize) bytes (\(byteSize(dev.size)))", "\(g.cylinders) 磁柱 × \(g.heads) 磁頭 × \(g.sectors) 磁區，每磁區 \(g.sectorSize) 位元組（\(byteSize(dev.size))）")) }
             if found.kind == nil, vols.allSatisfy({ $0.fsName.isEmpty }) {
                 // No file system DOS would read: games and BASIC disks boot their own loader.
                 let boots = dev.read(0, 16).map { $0.contains { $0 != 0 && $0 != 0xe5 } } ?? false
                 sum.add(L("中身", "Contents"), boots ? L("DOS のファイルシステムではありません（独自の形式で、起動用のプログラムが書かれています）", "Not a DOS file system (its own format, with a boot program)") : L("DOS のファイルシステムではありません", "Not a DOS file system"))
             }
         }
-        if let dc = diskCopy { sum.add(L("イメージの形式", "Image format"), "Disk Copy 4.2" + (dc.format.isEmpty ? "" : L("（\(dc.format) フロッピー）", " (\(dc.format) floppy)"))) }
+        if let dc = diskCopy { sum.add(L("イメージの形式", "Image format"), "Disk Copy 4.2" + (dc.format.isEmpty ? "" : L("（\(dc.format) フロッピー）", " (\(dc.format) floppy)", "（\(dc.format) 軟碟）"))) }
         if encrypted { sum.add(L("暗号化", "Encryption"), L("パスワードで保護されているため、中身は読めません", "Password-protected: the contents cannot be read"), tone: .warn) }
         sum.add(L("パーティション方式", "Partition scheme"), scheme)
         if let h = main {
             sum.add(L("ボリューム名", "Volume name"), h.volumeName)
             if !(h is ClassicVolume) { sum.add(L("ファイルシステム", "File system"), vols.first(where: { $0.vol === h })?.fsName) }
-            sum.add(L("ファイル数", "Files"), "\(h.fileCount)" + L(" 個（フォルダー \(h.folderCount) 個）", " (\(h.folderCount) folders)"))
+            sum.add(L("ファイル数", "Files"), "\(h.fileCount)" + L(" 個（フォルダー \(h.folderCount) 個）", " (\(h.folderCount) folders)", " 個（檔案夾 \(h.folderCount) 個）"))
             if let c = h.created { sum.add(L("作成日時", "Created"), dateString(c)) }
         } else if !apfsVolumes.isEmpty, apfsVolumes.allSatisfy({ $0.encrypted }) {
             sum.add(L("中身の読み取り", "Reading the contents"), L("APFS のボリュームが暗号化されているため、中のファイルは読めません", "The APFS volume is encrypted, so files inside cannot be read"), tone: .warn)

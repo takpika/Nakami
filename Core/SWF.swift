@@ -189,11 +189,11 @@ enum SWF {
             case 9: background = String(format: "#%02X%02X%02X", r.u8(o), r.u8(o + 1), r.u8(o + 2))
             case 77: metadata = r.cstr(o, max: len)
             case 41 where len >= 26:
-                let p = products[r.u32(o)] ?? L("不明な製品 (\(r.u32(o)))", "Unknown product (\(r.u32(o)))")
+                let p = products[r.u32(o)] ?? L("不明な製品 (\(r.u32(o)))", "Unknown product (\(r.u32(o)))", "未知產品 (\(r.u32(o)))")
                 product.add(L("作成に使われた製品", "Built with"), "\(p) \(r.u8(o + 8)).\(r.u8(o + 9)) (build \(r.u32(o + 10)))")
                 let ms = r.u64(o + 18)
                 if ms > 0, ms < 4_102_444_800_000 { product.add(L("コンパイル日時", "Compiled"), dateString(Date(timeIntervalSince1970: Double(ms) / 1000))) }
-            case 65: scriptLimits = L("再帰の深さ \(r.u16(o))、制限時間 \(r.u16(o + 2)) 秒", "recursion depth \(r.u16(o)), timeout \(r.u16(o + 2)) s")
+            case 65: scriptLimits = L("再帰の深さ \(r.u16(o))、制限時間 \(r.u16(o + 2)) 秒", "recursion depth \(r.u16(o)), timeout \(r.u16(o + 2)) s", "遞迴深度 \(r.u16(o))、逾時 \(r.u16(o + 2)) 秒")
             case 82, 72:
                 hasAS3 = true
                 var start = o
@@ -249,8 +249,8 @@ enum SWF {
         sum.add(L("説明", "Description"), description?.trimmingCharacters(in: .whitespacesAndNewlines))
         sum.add(L("画面の大きさ", "Stage size"), w > 0 && hgt > 0 ? "\(num(w)) × \(num(hgt))" + L(" ピクセル", " px") : L("指定なし（表示する側に合わせる）", "Not set (fits its container)"))
         sum.add(L("フレームレート", "Frame rate"), num(fps) + " fps")
-        sum.add(L("フレーム数", "Frames"), "\(frames)" + (fps > 0 && frames > 1 ? L("（約 \(num((Double(frames) / fps * 10).rounded() / 10)) 秒）", " (about \(num((Double(frames) / fps * 10).rounded() / 10)) s)") : ""))
-        sum.add(L("形式のバージョン", "SWF version"), "\(version)" + L("（\(player(version)) 以降向け）", " (for \(player(version)) or later)"))
+        sum.add(L("フレーム数", "Frames"), "\(frames)" + (fps > 0 && frames > 1 ? L("（約 \(num((Double(frames) / fps * 10).rounded() / 10)) 秒）", " (about \(num((Double(frames) / fps * 10).rounded() / 10)) s)", "（約 \(num((Double(frames) / fps * 10).rounded() / 10)) 秒）") : ""))
+        sum.add(L("形式のバージョン", "SWF version"), "\(version)" + L("（\(player(version)) 以降向け）", " (for \(player(version)) or later)", "（適用於 \(player(version)) 或以上版本）"))
         sum.add(L("スクリプト", "Scripting"), script ?? L("なし", "None"))
         sum.add(L("最初に動くクラス", "Document class"), documentClass, mono: true)
         sum.add(L("作成ソフト", "Creator tool"), creatorTool)
