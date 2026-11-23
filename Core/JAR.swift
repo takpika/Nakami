@@ -382,8 +382,12 @@ enum JAR {
         rep.subtitle = kind
         rep.badges = badges
         var sum = [Row(L("種類", "Kind"), kind)]
-        let version = game?.version ?? m0?.version ?? (installer?["version"] as? String) ?? ((installer?["install"] as? [String: Any])?["version"] as? String)
-            ?? ideaPlugin?.first("version")?.text ?? mf["Implementation-Version"] ?? mf["Bundle-Version"] ?? own?.version ?? mf["Specification-Version"]
+        let installerVersion: String? = (installer?["version"] as? String) ?? ((installer?["install"] as? [String: Any])?["version"] as? String)
+        let manifestVersion: String? = mf["Implementation-Version"] ?? mf["Bundle-Version"]
+        var version: String? = game?.version ?? m0?.version
+        if version == nil { version = installerVersion ?? ideaPlugin?.first("version")?.text }
+        if version == nil { version = manifestVersion ?? own?.version }
+        if version == nil { version = mf["Specification-Version"] }
         sum.add(L("バージョン", "Version"), version)
         if let g = game { sum.append(contentsOf: g.rows) }
         if let p = installer {
