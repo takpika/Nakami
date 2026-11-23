@@ -47,7 +47,7 @@ struct Reader {
         guard o >= 0, o < data.count else { return "" }
         let end = Swift.min(data.count, o + max)
         var e = o
-        data.withUnsafeBytes { p in
+        data.withUnsafeBytes { (p: UnsafeRawBufferPointer) in
             while e < end, p[e] != 0 { e += 1 }
         }
         return Reader.decode(bytes(o, e - o))
@@ -106,7 +106,7 @@ func entropy(_ r: Reader, _ off: Int, _ size: Int, cap: Int = 1 << 20) -> Double
     var hist = [Int](repeating: 0, count: 256)
     let step = Swift.max(1, size / cap)
     var n = 0
-    r.data.withUnsafeBytes { p in
+    r.data.withUnsafeBytes { (p: UnsafeRawBufferPointer) in
         var i = off
         while i < off + size {
             hist[Int(p[i])] += 1
@@ -126,7 +126,7 @@ func entropy(_ r: Reader, _ off: Int, _ size: Int, cap: Int = 1 << 20) -> Double
 func asciiStrings(_ r: Reader, _ off: Int, _ size: Int, minLen: Int = 6, cap: Int = 4000) -> [String] {
     guard size > 0, r.ok(off, size) else { return [] }
     var out = [String]()
-    r.data.withUnsafeBytes { p in
+    r.data.withUnsafeBytes { (p: UnsafeRawBufferPointer) in
         var start = -1
         var i = off
         let end = off + size
