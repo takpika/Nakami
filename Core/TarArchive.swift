@@ -155,6 +155,10 @@ enum CompressedFile {
             else if !head.prefix(1024).contains(0), String(data: head.prefix(1024), encoding: .utf8) != nil || String(data: head.prefix(1021), encoding: .utf8) != nil { inner = L("テキスト", "Text") }
         }
         sum.add(L("中身", "Contents"), inner)
+        // A .dmg should end with the image's own trailer; without it the file was most likely cut short.
+        if url.pathExtension.lowercased() == "dmg" {
+            sum.add(L("注意", "Note"), L("ディスクイメージとして読めません。末尾の情報が無く、途中で切れている（ダウンロードが完了していない）可能性があります", "Not readable as a disk image: its trailer is missing, so the file is probably cut short (an unfinished download)"), tone: .warn)
+        }
         if codec == .gzip, data.count > 18 {
             // gzip records the original name and the size (modulo 4 GB).
             let g = Reader(data, little: true)

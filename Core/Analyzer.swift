@@ -70,8 +70,11 @@ enum Analyzer {
             let u = URL(fileURLWithPath: name)
             return ClassicArchive.report(url: u, data: inner, opts: opts) ?? (inner.count > 2048 ? DiskImage.report(url: u, data: inner, opts: opts) : nil)
         }) { rep = c }
-        if rep.kind == .unknown, let t = TarArchive.report(url: url, data: data, opts: opts) { rep = t }
-        if rep.kind == .unknown, let c = CompressedFile.report(url: url, data: data) { rep = c }
+        // A disk image whose first chunk happens to be bzip2 or zlib data starts like a compressed file:
+        // the image's own trailer decides.
+        let isDMG = DMGDevice.hasTrailer(DataDevice(data))
+        if rep.kind == .unknown, !isDMG, let t = TarArchive.report(url: url, data: data, opts: opts) { rep = t }
+        if rep.kind == .unknown, !isDMG, let c = CompressedFile.report(url: url, data: data) { rep = c }
         if rep.kind == .unknown, let v = VirtualDisk.report(url: url, data: data, opts: opts) { rep = v }
         if rep.kind == .unknown, let c = Console.report(url: url, data: data, opts: opts) { rep = c }
         // A resource fork saved as an ordinary file (.rsrc).

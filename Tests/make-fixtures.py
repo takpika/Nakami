@@ -239,6 +239,21 @@ manifest = element("manifest", attr("package", "org.example.bundle") + attr("ver
 write("demo.aab", zip_bytes([("base/manifest/AndroidManifest.xml", manifest), ("base/dex/classes.dex", b"dex\n035\0" + b"\0" * 100),
                              ("BundleConfig.pb", field(1, field(2, b"1.15.6")))]))
 
+# ---- Apple disk image whose first chunk is bzip2 data (so the file itself starts with "BZh")
+import bz2, base64
+raw_disk = bytearray(64 * 512)
+raw_disk[1024:1026] = b"\xd2\xd7"                      # MFS signature, so the image has a recognisable volume
+packed = bz2.compress(bytes(raw_disk))
+mish = bytearray(204 + 2 * 40)
+mish[0:4] = b"mish"; struct.pack_into(">IQQQ", mish, 4, 1, 0, 64, 0); struct.pack_into(">I", mish, 200, 2)
+struct.pack_into(">IIQQQQ", mish, 204, 0x80000006, 0, 0, 64, 0, len(packed))
+struct.pack_into(">IIQQQQ", mish, 244, 0xffffffff, 0, 64, 0, len(packed), 0)
+xml = plistlib.dumps({"resource-fork": {"blkx": [{"Attributes": "0x0050", "Data": bytes(mish), "ID": "0", "Name": "whole disk"}]}})
+koly = bytearray(512)
+koly[0:4] = b"koly"; struct.pack_into(">II", koly, 4, 4, 512)
+struct.pack_into(">QQ", koly, 24, 0, len(packed)); struct.pack_into(">QQ", koly, 216, len(packed), len(xml)); struct.pack_into(">Q", koly, 492, 64)
+write("bzip2-first.dmg", packed + xml + bytes(koly))
+
 # ---- Executables: a bare ELF header (x86-64 shared object)
 elf = b"\x7fELF" + bytes([2, 1, 1, 0]) + b"\0" * 8 + struct.pack("<HHIQQQIHHHHHH", 3, 62, 1, 0, 0, 0, 0, 64, 56, 0, 64, 0, 0)
 write("lib.so", elf)

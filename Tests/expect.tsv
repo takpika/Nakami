@@ -47,3 +47,5 @@ demo.aab	org.example.bundle
 demo.aab	1.15.6
 lib.so	Shared library
 lib.so	x86-64
+bzip2-first.dmg	Disk image (dmg)
+bzip2-first.dmg	bzip2
