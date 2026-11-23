@@ -68,10 +68,13 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: gh release create "$GITHUB_REF_NAME" build/Nakami-*.zip --title "Nakami ${GITHUB_REF_NAME#v}" --generate-notes
+      # Build numbers come from the date, so they always increase (also across builds uploaded by hand).
+      - name: Choose the build number
+        run: echo "NAKAMI_BUILD=$(date -u +%Y%m%d%H%M)" >> "$GITHUB_ENV"
       - name: Upload the iOS app to App Store Connect
-        run: NAKAMI_BUILD="${GITHUB_RUN_NUMBER}" scripts/store.sh ios upload
+        run: scripts/store.sh ios upload
       - name: Upload the Mac app to App Store Connect
-        run: NAKAMI_BUILD="${GITHUB_RUN_NUMBER}" scripts/store.sh mac upload
+        run: scripts/store.sh mac upload
       - name: Remove the keys
         if: always()
         run: rm -f "$RUNNER_TEMP/asc.p8"; security delete-keychain "$RUNNER_TEMP/release.keychain-db" || true
