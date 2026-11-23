@@ -226,10 +226,18 @@ enum Appx {
         if let s = sig { rep.sections.append(s.section) }
 
         if let bm = bundleManifest {
-            let rows = bm.descendants("Package").map { p in
-                [p.attrs["FileName"] ?? "", (p.attrs["Type"] ?? "application"), arch(p.attrs["Architecture"]) ?? "", p.attrs["Version"] ?? "",
-                 p.attrs["ResourceId"] ?? p.descendants("Resource").compactMap { $0.attrs["Language"] ?? $0.attrs["Scale"].map { "scale-\($0)" } }.joined(separator: ", "),
-                 (p.attrs["Size"].flatMap { Int($0) }).map { byteSize($0) } ?? ""]
+            let rows: [[String]] = bm.descendants("Package").map { (p: XMLNode) -> [String] in
+                let file: String = p.attrs["FileName"] ?? ""
+                let type: String = p.attrs["Type"] ?? "application"
+                let cpu: String = arch(p.attrs["Architecture"]) ?? ""
+                let version: String = p.attrs["Version"] ?? ""
+                let qualifiers: [String] = p.descendants("Resource").compactMap { (r: XMLNode) -> String? in
+                    if let lang = r.attrs["Language"] { return lang }
+                    return r.attrs["Scale"].map { "scale-" + $0 }
+                }
+                let resources: String = p.attrs["ResourceId"] ?? qualifiers.joined(separator: ", ")
+                let size: String = p.attrs["Size"].flatMap { Int($0) }.map { byteSize($0) } ?? ""
+                return [file, type, cpu, version, resources, size]
             }
             rep.sections.append(ReportSection(id: "packages", title: L("含まれるパッケージ", "Packages"), symbol: "shippingbox",
                 blocks: [.table(TableData(columns: [L("ファイル", "File"), L("種類", "Type"), L("アーキテクチャ", "Arch"), L("バージョン", "Version"), L("リソース", "Resources"), L("サイズ", "Size")], rows: rows))], count: rows.count))

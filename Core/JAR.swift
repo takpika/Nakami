@@ -461,7 +461,10 @@ enum JAR {
             var rows = [[String]]()
             for e in services.prefix(200) {
                 let impls = zip.read(e, max: 1 << 16).map { String(decoding: $0, as: UTF8.self).split(separator: "\n").map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty && !$0.hasPrefix("#") } } ?? []
-                rows.append([String(e.name.dropFirst(18)), impls.prefix(6).joined(separator: "\n") + (impls.count > 6 ? L("\n… ほか \(impls.count - 6) 個", "\n… and \(impls.count - 6) more") : "")])
+                let shown: String = impls.prefix(6).joined(separator: "\n")
+                let extra: Int = impls.count - 6
+                let more: String = extra > 0 ? L("\n… ほか \(extra) 個", "\n… and \(extra) more") : ""
+                rows.append([String(e.name.dropFirst(18)), shown + more])
             }
             sections.append(ReportSection(id: "services", title: L("登録している機能 (ServiceLoader)", "Service Providers"), symbol: "point.3.connected.trianglepath.dotted",
                 blocks: [.table(TableData(columns: [L("インターフェース", "Interface"), L("実装するクラス", "Implementations")], rows: rows, total: services.count))], count: services.count))
