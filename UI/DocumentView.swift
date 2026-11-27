@@ -170,6 +170,11 @@ struct SectionDetailView: View {
     }
 }
 
+extension EnvironmentValues {
+    /// Closes the file shown in this window (iOS); nil where the system closes documents itself.
+    @Entry var closeDocument: (() -> Void)? = nil
+}
+
 struct DocumentView: View {
     let url: URL
     var initialSection: String? = nil
@@ -179,13 +184,16 @@ struct DocumentView: View {
     @State private var exportDoc: JSONExport?
     /// Screenshots only: the detail page opened right away on a phone (NAKAMI_SECTION).
     @State private var autoPush: ReportSection?
+    @Environment(\.closeDocument) private var closeDocument
 
     #if os(iOS)
-    // iOS: the document scene already has a navigation bar (back to the file browser, file name).
-    // So no split view of our own: the overview comes first, the detail pages are pushed onto that same bar.
+    // Narrow windows (iPhone, narrow iPad windows): the overview first, the detail pages pushed onto its own stack.
     // (A ≡ menu that switches pages in place was tried and rejected in favour of this.)
-    // Used on iPhone and in narrow iPad windows.
     private var listBody: some View {
+        NavigationStack { listContent }
+    }
+
+    private var listContent: some View {
         Group {
             if let report {
                 List {
@@ -223,7 +231,15 @@ struct DocumentView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
+        .navigationTitle(report?.title ?? url.lastPathComponent)
+        .navigationBarTitleDisplayMode(.inline)
+        .navigationDocument(url)
         .toolbar {
+            if let closeDocument {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button(action: closeDocument) { Label(L("閉じる", "Close"), systemImage: "xmark") }
+                }
+            }
             ToolbarItemGroup(placement: .topBarTrailing) {
                 Button { exportJSON() } label: { Label(L("JSON で書き出す", "Export JSON"), systemImage: "square.and.arrow.up") }
                     .disabled(report == nil)
@@ -236,21 +252,18 @@ struct DocumentView: View {
         .task { if report == nil { load() } }
     }
 
-    @Environment(\.dismiss) private var dismiss
 
     /// Windows at least this wide get the Mac layout (sidebar + detail).
     static let wideLayoutWidth: CGFloat = 640
 
     // Wide windows look like the Mac, whatever the device: iPad, iPad mini, an unfolded iPhone, a phone in
     // landscape. It goes by the window's real width, not the size class, and the split view is told it has
-    // room so it does not collapse. The document scene's own bar is hidden there (two stacked bars otherwise)
-    // and the sidebar gets the button that closes the document.
+    // room so it does not collapse. On iOS the sidebar has the button that closes the file.
     var body: some View {
         GeometryReader { geo in
             if geo.size.width >= DocumentView.wideLayoutWidth {
                 splitBody
                     .environment(\.horizontalSizeClass, .regular)
-                    .toolbar(.hidden, for: .navigationBar)
             } else {
                 listBody
             }
@@ -275,40 +288,44 @@ struct DocumentView: View {
                     }
                 }
             }
+            .toolbar {
+                if let closeDocument {
+                    ToolbarItem(placement: .navigation) {
+                        Button(action: closeDocument) { Label(L("閉じる", "Close"), systemImage: "xmark") }
+                    }
+                }
+            }
             // iOS: no fixed width, so that on a half-folded iPhone Duo the system sizes the columns to the fold.
             #if os(macOS)
             .navigationSplitViewColumnWidth(min: 200, ideal: 240, max: 320)
-            #else
-            .toolbar(.hidden, for: .navigationBar)   // the document's own bar (back, file name) is the only bar
             #endif
         } detail: {
             detail
+                .navigationDocument(url)
+                .toolbar {
+                    ToolbarItemGroup {
+                        #if os(macOS)
+                        Button { NSWorkspace.shared.activateFileViewerSelecting([url]) } label: {
+                            Label(L("Finder に表示", "Show in Finder"), systemImage: "folder")
+                        }
+                        .help(L("Finder に表示", "Show in Finder"))
+                        #endif
+                        Button { exportJSON() } label: {
+                            Label(L("JSON で書き出す", "Export JSON"), systemImage: "square.and.arrow.up")
+                        }
+                        .disabled(report == nil)
+                        Button { load() } label: {
+                            Label(L("再読み込み", "Reload"), systemImage: "arrow.clockwise")
+                        }
+                    }
+                }
                 #if os(macOS)
                 .navigationSubtitle(url.lastPathComponent)
-                #else
-                .toolbar(.hidden, for: .navigationBar)
                 #endif
         }
         .searchable(text: $filter, prompt: L("この画面を絞り込む", "Filter"))
-        .toolbar {
-            ToolbarItemGroup {
-                #if os(macOS)
-                Button { NSWorkspace.shared.activateFileViewerSelecting([url]) } label: {
-                    Label(L("Finder に表示", "Show in Finder"), systemImage: "folder")
-                }
-                .help(L("Finder に表示", "Show in Finder"))
-                #endif
-                Button { exportJSON() } label: {
-                    Label(L("JSON で書き出す", "Export JSON"), systemImage: "square.and.arrow.up")
-                }
-                .disabled(report == nil)
-                Button { load() } label: {
-                    Label(L("再読み込み", "Reload"), systemImage: "arrow.clockwise")
-                }
-            }
-        }
         #if os(macOS)
-        .frame(minWidth: 760, minHeight: 460)
+        .frame(minWidth: 760, idealWidth: 980, minHeight: 460, idealHeight: 680)
         #endif
         .fileExporter(isPresented: Binding(get: { exportDoc != nil }, set: { if !$0 { exportDoc = nil } }),
                       document: exportDoc, contentType: .json,

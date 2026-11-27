@@ -7,7 +7,7 @@ import UIKit
 
 /// First-launch screens: what the app does, and on macOS, whether its Quick Look extension is switched on.
 enum FirstLaunch {
-    private static let key = "welcomeShown"
+    static let key = "welcomeShown"
     static var needed: Bool { !UserDefaults.standard.bool(forKey: key) }
     static func finish() { UserDefaults.standard.set(true, forKey: key) }
 }
@@ -216,30 +216,69 @@ struct OnboardingView: View {
     #endif
 }
 
-#if os(iOS)
-/// The document browser is the app's first screen, so the welcome sheet is put on top of it once the scene is active.
-enum WelcomePresenter {
-    private static var observer: NSObjectProtocol?
+/// A window with no file: drop one here or choose one. iOS adds the files opened lately (the Mac has them in the File menu).
+struct WelcomeView: View {
+    let open: ([URL]) -> Void
+    let choose: () -> Void
+    @State private var targeted = false
 
-    static func install() {
-        guard FirstLaunch.needed, observer == nil else { return }
-        observer = NotificationCenter.default.addObserver(forName: UIScene.didActivateNotification, object: nil, queue: .main) { note in
-            guard FirstLaunch.needed, let scene = note.object as? UIWindowScene,
-                  let root = scene.windows.first(where: \.isKeyWindow)?.rootViewController ?? scene.windows.first?.rootViewController,
-                  root.presentedViewController == nil else { return }
-            let host = UIHostingController(rootView: OnboardingView(done: {
-                FirstLaunch.finish()
-                root.dismiss(animated: true)
-            }))
-            host.modalPresentationStyle = .formSheet
-            host.isModalInPresentation = true
-            root.present(host, animated: true)
-            if let observer { NotificationCenter.default.removeObserver(observer) }
-            observer = nil
+    var body: some View {
+        #if os(macOS)
+        dropArea.frame(width: 460, height: 340)   // a fixed-size window
+        #else
+        if #available(iOS 18.0, *) {
+            LaunchScreen(open: open).ignoresSafeArea()   // iOS: the system's document launch screen, as in Preview
+        } else {
+            MobileWelcome(open: open, choose: choose)
         }
+        #endif
+    }
+
+    #if os(macOS)
+    private var intro: String {
+        L("アプリ、実行ファイル、インストーラーやパッケージの中身を調べます。\nFinder でスペースキーを押しても概要を見られます。",
+          "Inspect apps, executables, installers and packages.\nPress Space in Finder for a quick summary.",
+          "檢查 App、執行檔、安裝程式與套件的內容。\n在 Finder 按下空白鍵也能看到摘要。")
+    }
+
+    private var dropArea: some View {
+        VStack(spacing: 14) {
+            Image(systemName: "doc.text.magnifyingglass")
+                .font(.system(size: 54, weight: .light))
+                .foregroundStyle(targeted ? Color.accentColor : .secondary)
+            Text(L("ここにドロップ", "Drop here", "拖放到這裡"))
+                .font(.title2.weight(.semibold))
+            Text(intro)
+                .multilineTextAlignment(.center)
+                .foregroundStyle(.secondary)
+            Button(L("選ぶ…", "Choose…", "選擇…"), action: choose)
+                .keyboardShortcut(.defaultAction)
+                .padding(.top, 4)
+        }
+        .padding(30)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background {
+            RoundedRectangle(cornerRadius: 14)
+                .strokeBorder(style: StrokeStyle(lineWidth: 2, dash: [7, 6]))
+                .foregroundStyle(targeted ? Color.accentColor : Color.secondary.opacity(0.35))
+                .padding(14)
+        }
+        .dropDestination(for: URL.self) { urls, _ in
+            open(urls)
+            return !urls.isEmpty
+        } isTargeted: { targeted = $0 }
+    }
+    #endif
+}
+
+/// Files opened lately go to the Mac's Open Recent menu. On iOS the embedded Files browser keeps its own recents.
+enum Recents {
+    static func add(_ url: URL) {
+        #if os(macOS)
+        NSDocumentController.shared.noteNewRecentDocumentURL(url)
+        #endif
     }
 }
-#endif
 
 #if os(macOS) && NAKAMI_SELFTEST
 /// Test builds only: draw the first-launch pages to PNG files (NAKAMI_WELCOME_PNG=/dir).
@@ -264,3 +303,4 @@ enum WelcomePresenter {
     }
 }
 #endif
+

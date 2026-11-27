@@ -27,8 +27,6 @@
 			</array>
 			<key>LSTypeIsPackage</key>
 			<true/>
-			<key>NSDocumentClass</key>
-			<string>$(PRODUCT_MODULE_NAME).BinaryDocument</string>
 		</dict>
 		<dict>
 			<key>CFBundleTypeName</key>
@@ -45,8 +43,6 @@
 				<string>com.apple.mach-o-executable</string>
 				<string>public.object-code</string>
 			</array>
-			<key>NSDocumentClass</key>
-			<string>$(PRODUCT_MODULE_NAME).BinaryDocument</string>
 		</dict>
 		<dict>
 			<key>CFBundleTypeName</key>
@@ -60,8 +56,6 @@
 				<string>com.microsoft.windows-executable</string>
 				<string>com.microsoft.windows-dynamic-link-library</string>
 			</array>
-			<key>NSDocumentClass</key>
-			<string>$(PRODUCT_MODULE_NAME).BinaryDocument</string>
 		</dict>
 		<dict>
 			<key>CFBundleTypeName</key>
@@ -79,8 +73,6 @@
 				<string>com.apple.xip-archive</string>
 				<string>public.iso-image</string>
 			</array>
-			<key>NSDocumentClass</key>
-			<string>$(PRODUCT_MODULE_NAME).BinaryDocument</string>
 		</dict>
 		<dict>
 			<key>CFBundleTypeName</key>
@@ -93,8 +85,6 @@
 			<array>
 				<string>jp.takpika.nakami.elf</string>
 			</array>
-			<key>NSDocumentClass</key>
-			<string>$(PRODUCT_MODULE_NAME).BinaryDocument</string>
 		</dict>
 		<dict>
 			<key>CFBundleTypeName</key>
@@ -107,8 +97,6 @@
 			<array>
 				<string>jp.takpika.nakami.pe</string>
 			</array>
-			<key>NSDocumentClass</key>
-			<string>$(PRODUCT_MODULE_NAME).BinaryDocument</string>
 		</dict>
 		<dict>
 			<key>CFBundleTypeName</key>
@@ -121,8 +109,6 @@
 			<array>
 				<string>jp.takpika.nakami.archive</string>
 			</array>
-			<key>NSDocumentClass</key>
-			<string>$(PRODUCT_MODULE_NAME).BinaryDocument</string>
 		</dict>
 		<dict>
 			<key>CFBundleTypeName</key>
@@ -135,8 +121,6 @@
 			<array>
 				<string>com.android.package-archive</string>
 			</array>
-			<key>NSDocumentClass</key>
-			<string>$(PRODUCT_MODULE_NAME).BinaryDocument</string>
 		</dict>
 		<dict>
 			<key>CFBundleTypeName</key>
@@ -149,8 +133,6 @@
 			<array>
 				<string>jp.takpika.nakami.appx</string>
 			</array>
-			<key>NSDocumentClass</key>
-			<string>$(PRODUCT_MODULE_NAME).BinaryDocument</string>
 		</dict>
 		<dict>
 			<key>CFBundleTypeName</key>
@@ -163,8 +145,6 @@
 			<array>
 				<string>jp.takpika.nakami.msi</string>
 			</array>
-			<key>NSDocumentClass</key>
-			<string>$(PRODUCT_MODULE_NAME).BinaryDocument</string>
 		</dict>
 		<dict>
 			<key>CFBundleTypeName</key>
@@ -177,8 +157,6 @@
 			<array>
 				<string>jp.takpika.nakami.xar</string>
 			</array>
-			<key>NSDocumentClass</key>
-			<string>$(PRODUCT_MODULE_NAME).BinaryDocument</string>
 		</dict>
 		<dict>
 			<key>CFBundleTypeName</key>
@@ -191,8 +169,6 @@
 			<array>
 				<string>jp.takpika.nakami.rom</string>
 			</array>
-			<key>NSDocumentClass</key>
-			<string>$(PRODUCT_MODULE_NAME).BinaryDocument</string>
 		</dict>
 		<dict>
 			<key>CFBundleTypeName</key>
@@ -205,8 +181,6 @@
 			<array>
 				<string>jp.takpika.nakami.rom.nes</string>
 			</array>
-			<key>NSDocumentClass</key>
-			<string>$(PRODUCT_MODULE_NAME).BinaryDocument</string>
 		</dict>
 		<dict>
 			<key>CFBundleTypeName</key>
@@ -219,8 +193,6 @@
 			<array>
 				<string>jp.takpika.nakami.rom.gb</string>
 			</array>
-			<key>NSDocumentClass</key>
-			<string>$(PRODUCT_MODULE_NAME).BinaryDocument</string>
 		</dict>
 		<dict>
 			<key>CFBundleTypeName</key>
@@ -233,8 +205,6 @@
 			<array>
 				<string>jp.takpika.nakami.rom.gbc</string>
 			</array>
-			<key>NSDocumentClass</key>
-			<string>$(PRODUCT_MODULE_NAME).BinaryDocument</string>
 		</dict>
 		<dict>
 			<key>CFBundleTypeName</key>
@@ -247,8 +217,6 @@
 			<array>
 				<string>jp.takpika.nakami.rom.gba</string>
 			</array>
-			<key>NSDocumentClass</key>
-			<string>$(PRODUCT_MODULE_NAME).BinaryDocument</string>
 		</dict>
 		<dict>
 			<key>CFBundleTypeName</key>
@@ -261,8 +229,6 @@
 			<array>
 				<string>jp.takpika.nakami.rom.nds</string>
 			</array>
-			<key>NSDocumentClass</key>
-			<string>$(PRODUCT_MODULE_NAME).BinaryDocument</string>
 		</dict>
 		<dict>
 			<key>CFBundleTypeName</key>
@@ -275,8 +241,6 @@
 			<array>
 				<string>jp.takpika.nakami.rom.n64</string>
 			</array>
-			<key>NSDocumentClass</key>
-			<string>$(PRODUCT_MODULE_NAME).BinaryDocument</string>
 		</dict>
 		<dict>
 			<key>CFBundleTypeName</key>
@@ -289,8 +253,6 @@
 			<array>
 				<string>jp.takpika.nakami.rom.snes</string>
 			</array>
-			<key>NSDocumentClass</key>
-			<string>$(PRODUCT_MODULE_NAME).BinaryDocument</string>
 		</dict>
 		<dict>
 			<key>CFBundleTypeName</key>
@@ -303,8 +265,6 @@
 			<array>
 				<string>jp.takpika.nakami.rom.megadrive</string>
 			</array>
-			<key>NSDocumentClass</key>
-			<string>$(PRODUCT_MODULE_NAME).BinaryDocument</string>
 		</dict>
 		<dict>
 			<key>CFBundleTypeName</key>
@@ -317,8 +277,6 @@
 			<array>
 				<string>jp.takpika.nakami.rom.cia</string>
 			</array>
-			<key>NSDocumentClass</key>
-			<string>$(PRODUCT_MODULE_NAME).BinaryDocument</string>
 		</dict>
 		<dict>
 			<key>CFBundleTypeName</key>
@@ -331,8 +289,6 @@
 			<array>
 				<string>jp.takpika.nakami.rom.3dsx</string>
 			</array>
-			<key>NSDocumentClass</key>
-			<string>$(PRODUCT_MODULE_NAME).BinaryDocument</string>
 		</dict>
 		<dict>
 			<key>CFBundleTypeName</key>
@@ -345,8 +301,6 @@
 			<array>
 				<string>jp.takpika.nakami.rom.wbfs</string>
 			</array>
-			<key>NSDocumentClass</key>
-			<string>$(PRODUCT_MODULE_NAME).BinaryDocument</string>
 		</dict>
 		<dict>
 			<key>CFBundleTypeName</key>
@@ -359,8 +313,6 @@
 			<array>
 				<string>jp.takpika.nakami.rom.gcm</string>
 			</array>
-			<key>NSDocumentClass</key>
-			<string>$(PRODUCT_MODULE_NAME).BinaryDocument</string>
 		</dict>
 		<dict>
 			<key>CFBundleTypeName</key>
@@ -373,8 +325,6 @@
 			<array>
 				<string>jp.takpika.nakami.rom.pbp</string>
 			</array>
-			<key>NSDocumentClass</key>
-			<string>$(PRODUCT_MODULE_NAME).BinaryDocument</string>
 		</dict>
 		<dict>
 			<key>CFBundleTypeName</key>
@@ -387,8 +337,6 @@
 			<array>
 				<string>jp.takpika.nakami.wim</string>
 			</array>
-			<key>NSDocumentClass</key>
-			<string>$(PRODUCT_MODULE_NAME).BinaryDocument</string>
 		</dict>
 		<dict>
 			<key>CFBundleTypeName</key>
@@ -401,8 +349,6 @@
 			<array>
 				<string>jp.takpika.nakami.msu</string>
 			</array>
-			<key>NSDocumentClass</key>
-			<string>$(PRODUCT_MODULE_NAME).BinaryDocument</string>
 		</dict>
 		<dict>
 			<key>CFBundleTypeName</key>
@@ -415,8 +361,6 @@
 			<array>
 				<string>jp.takpika.nakami.vdisk</string>
 			</array>
-			<key>NSDocumentClass</key>
-			<string>$(PRODUCT_MODULE_NAME).BinaryDocument</string>
 		</dict>
 		<dict>
 			<key>CFBundleTypeName</key>
@@ -429,8 +373,6 @@
 			<array>
 				<string>jp.takpika.nakami.floppy</string>
 			</array>
-			<key>NSDocumentClass</key>
-			<string>$(PRODUCT_MODULE_NAME).BinaryDocument</string>
 		</dict>
 		<dict>
 			<key>CFBundleTypeName</key>
@@ -449,8 +391,6 @@
 				<string>com.vmware.foreign.vhd</string>
 				<string>com.vmware.vm-disk</string>
 			</array>
-			<key>NSDocumentClass</key>
-			<string>$(PRODUCT_MODULE_NAME).BinaryDocument</string>
 		</dict>
 		<dict>
 			<key>CFBundleTypeName</key>
@@ -465,8 +405,6 @@
 				<string>com.sun.web-application-archive</string>
 				<string>jp.takpika.nakami.aar</string>
 			</array>
-			<key>NSDocumentClass</key>
-			<string>$(PRODUCT_MODULE_NAME).BinaryDocument</string>
 		</dict>
 		<dict>
 			<key>CFBundleTypeName</key>
@@ -485,8 +423,6 @@
 				<string>jp.takpika.nakami.flatpakref</string>
 				<string>jp.takpika.nakami.squashfs</string>
 			</array>
-			<key>NSDocumentClass</key>
-			<string>$(PRODUCT_MODULE_NAME).BinaryDocument</string>
 		</dict>
 		<dict>
 			<key>CFBundleTypeName</key>
@@ -504,8 +440,6 @@
 				<string>public.bzip2-archive</string>
 				<string>jp.takpika.nakami.zstd</string>
 			</array>
-			<key>NSDocumentClass</key>
-			<string>$(PRODUCT_MODULE_NAME).BinaryDocument</string>
 		</dict>
 		<dict>
 			<key>CFBundleTypeName</key>
@@ -518,8 +452,6 @@
 			<array>
 				<string>jp.takpika.nakami.aab</string>
 			</array>
-			<key>NSDocumentClass</key>
-			<string>$(PRODUCT_MODULE_NAME).BinaryDocument</string>
 		</dict>
 		<dict>
 			<key>CFBundleTypeName</key>
@@ -532,8 +464,6 @@
 			<array>
 				<string>com.macromedia.shockwave-flash</string>
 			</array>
-			<key>NSDocumentClass</key>
-			<string>$(PRODUCT_MODULE_NAME).BinaryDocument</string>
 		</dict>
 		<dict>
 			<key>CFBundleTypeName</key>
@@ -553,8 +483,6 @@
 				<string>jp.takpika.nakami.rsrc</string>
 				<string>com.apple.applesingle-archive</string>
 			</array>
-			<key>NSDocumentClass</key>
-			<string>$(PRODUCT_MODULE_NAME).BinaryDocument</string>
 		</dict>
 		<dict>
 			<key>CFBundleTypeName</key>
@@ -567,8 +495,6 @@
 			<array>
 				<string>jp.takpika.nakami.pc98disk</string>
 			</array>
-			<key>NSDocumentClass</key>
-			<string>$(PRODUCT_MODULE_NAME).BinaryDocument</string>
 		</dict>
 		<dict>
 			<key>CFBundleTypeName</key>
@@ -582,8 +508,6 @@
 				<string>public.data</string>
 				<string>public.directory</string>
 			</array>
-			<key>NSDocumentClass</key>
-			<string>$(PRODUCT_MODULE_NAME).BinaryDocument</string>
 		</dict>
 	</array>
 	<key>CFBundleExecutable</key>
@@ -647,8 +571,6 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
-	<key>UISupportsDocumentBrowser</key>
-	<true/>
 	<key>UTImportedTypeDeclarations</key>
 	<array>
 		<dict>
