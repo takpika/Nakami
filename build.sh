@@ -12,10 +12,12 @@ IDENTITY="${1:-${NAKAMI_IDENTITY:-$DEFAULT}}"
 TS="--timestamp"; [ "$IDENTITY" = "-" ] && TS="--timestamp=none"
 
 xcodegen generate --quiet
+# The version: from the release tag when given (NAKAMI_VERSION), else project.yml.
+VERSION_ARG=""; [ -n "$NAKAMI_VERSION" ] && VERSION_ARG="MARKETING_VERSION=$NAKAMI_VERSION"
 # The app (with both Quick Look extensions), then the two macOS-only helpers.
 for scheme in Nakami NakamiLauncher nakami-cli; do
   xcodebuild -project Nakami.xcodeproj -scheme "$scheme" -configuration Release -destination 'generic/platform=macOS' \
-    -derivedDataPath build/dd -quiet build
+    -derivedDataPath build/dd $VERSION_ARG -quiet build
 done
 
 P=build/dd/Build/Products/Release

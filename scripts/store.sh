@@ -19,11 +19,13 @@ case "$PLATFORM" in
   *) echo "usage: scripts/store.sh ios|mac [export|upload]"; exit 2 ;;
 esac
 BUILD="${NAKAMI_BUILD:-$(date +%Y%m%d%H%M)}"
+# The version shown in the store: from the release tag when given (NAKAMI_VERSION), else project.yml.
+VERSION_ARG=""; [ -n "$NAKAMI_VERSION" ] && VERSION_ARG="MARKETING_VERSION=$NAKAMI_VERSION"
 OUT="build/store-$PLATFORM"
 rm -rf "$OUT"; mkdir -p "$OUT"
 xcodegen generate --quiet
 xcodebuild -project Nakami.xcodeproj -scheme Nakami -configuration Release -destination "$DEST" -archivePath "$OUT/Nakami.xcarchive" \
-  CODE_SIGN_STYLE=Manual CODE_SIGN_IDENTITY="Apple Distribution" DEVELOPMENT_TEAM="$NAKAMI_TEAM" CURRENT_PROJECT_VERSION="$BUILD" \
+  CODE_SIGN_STYLE=Manual CODE_SIGN_IDENTITY="Apple Distribution" DEVELOPMENT_TEAM="$NAKAMI_TEAM" CURRENT_PROJECT_VERSION="$BUILD" $VERSION_ARG \
   NAKAMI_PROFILE_APP="Nakami App $P App Store" NAKAMI_PROFILE_PREVIEW="Nakami Preview $P App Store" \
   NAKAMI_PROFILE_THUMBNAIL="Nakami Thumbnail $P App Store" NAKAMI_PROFILE_SPOTLIGHT="Nakami Spotlight $P App Store" \
   $EXTRA -quiet archive
