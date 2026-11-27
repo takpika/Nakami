@@ -22,6 +22,7 @@ enum DocumentTypes {
 }
 
 struct NakamiMobileApp: App {
+    @UIApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     init() { WelcomePresenter.install() }
 
     var body: some Scene {
@@ -33,6 +34,37 @@ struct NakamiMobileApp: App {
                 ContentUnavailableView(L("ファイルを開けません", "Cannot open the file"), systemImage: "exclamationmark.triangle")
             }
         }
+    }
+}
+
+/// While the app is running, DocumentGroup ignores a file handed over by another app (Files' "Open in Nakami").
+/// The file is given to the system document browser as if it had been picked there, after closing the open one.
+final class AppDelegate: NSObject, UIApplicationDelegate {
+    func application(_ application: UIApplication, configurationForConnecting session: UISceneSession, options: UIScene.ConnectionOptions) -> UISceneConfiguration {
+        let config = UISceneConfiguration(name: nil, sessionRole: session.role)
+        config.delegateClass = HandOverSceneDelegate.self
+        return config
+    }
+}
+
+final class HandOverSceneDelegate: NSObject, UIWindowSceneDelegate {
+    func scene(_ scene: UIScene, openURLContexts contexts: Set<UIOpenURLContext>) {
+        guard let url = contexts.first?.url, let root = (scene as? UIWindowScene)?.windows.first?.rootViewController else { return }
+        if let open = root.children.first as? UIDocumentViewController, open.document != nil { open.document = nil }
+        pick(url, in: root, triesLeft: 30)
+    }
+
+    /// Waits (up to 3 s) for the browser to be back on screen with no transition running.
+    private func pick(_ url: URL, in root: UIViewController, triesLeft: Int) {
+        if let browser = Self.browser(in: root), browser.viewIfLoaded?.window != nil, root.transitionCoordinator == nil {
+            browser.delegate?.documentBrowser?(browser, didPickDocumentsAt: [url])
+        } else if triesLeft > 0 {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { self.pick(url, in: root, triesLeft: triesLeft - 1) }
+        }
+    }
+
+    private static func browser(in vc: UIViewController) -> UIDocumentBrowserViewController? {
+        (vc as? UIDocumentBrowserViewController) ?? (vc.children + [vc.presentedViewController].compactMap { $0 }).lazy.compactMap(browser).first
     }
 }
 

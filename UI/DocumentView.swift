@@ -279,18 +279,14 @@ struct DocumentView: View {
             #if os(macOS)
             .navigationSplitViewColumnWidth(min: 200, ideal: 240, max: 320)
             #else
-            .navigationTitle(url.lastPathComponent)
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button { dismiss() } label: { Label(L("閉じる", "Close"), systemImage: "chevron.backward") }
-                }
-            }
+            .toolbar(.hidden, for: .navigationBar)   // the document's own bar (back, file name) is the only bar
             #endif
         } detail: {
             detail
                 #if os(macOS)
                 .navigationSubtitle(url.lastPathComponent)
+                #else
+                .toolbar(.hidden, for: .navigationBar)
                 #endif
         }
         .searchable(text: $filter, prompt: L("この画面を絞り込む", "Filter"))
